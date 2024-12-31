@@ -3,10 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "deploy": "vercel deploy --prod",
+    "analyze": "ANALYZE=true next build"
   },
   "dependencies": {
     "@notionhq/client": "^2.2.15",

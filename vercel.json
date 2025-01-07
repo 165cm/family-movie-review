@@ -5,9 +5,9 @@
     "framework": "nextjs",
     "regions": ["hnd1"],
     "env": {
-      "NOTION_API_KEY": "@notion_api_key",
-      "NOTION_DATABASE_ID": "@notion_database_id",
-      "NEXT_PUBLIC_BASE_URL": "@next_public_base_url"
+      "NOTION_API_KEY": "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",
+      "NOTION_DATABASE_ID": "85f824e938cf4dc8a167ce19aba9fb54",
+      "NEXT_PUBLIC_BASE_URL": "https://family-movie-review.vercel.app"
     },
     "headers": [
       {

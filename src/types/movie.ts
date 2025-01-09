@@ -1,10 +1,29 @@
 // src/types/movie.ts
+export type FamilyCheck = 'OK' | '気まずい' | 'NG';
+
+export interface ContentWarning {
+  category: string;
+  level: number;
+  scenes: {
+    timestamp: string;
+    description: string;
+    severity: 'low' | 'medium' | 'high';
+  }[];
+}
+
+export interface AgeGroupRating {
+  ageGroup: string;
+  isRecommended: boolean;
+  warning?: string;
+}
+
+// src/types/movie.ts の Movie インターフェースを更新
 export interface Movie {
   id: string;
   name: string;
   slug: string;
   synopsis: string;
-  youtubeId?: string; // 追加
+  youtubeId?: string;
   
   // 評価スコア
   totalScore: number;
@@ -38,6 +57,7 @@ export interface Movie {
   status: string;
   isBest5: boolean;
   monthDb: string;
+  check: FamilyCheck;
 }
 
 export interface MovieListItem {

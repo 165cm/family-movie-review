@@ -17,7 +17,6 @@ export interface AgeGroupRating {
   warning?: string;
 }
 
-// src/types/movie.ts の Movie インターフェースを更新
 export interface Movie {
   id: string;
   name: string;
@@ -60,6 +59,7 @@ export interface Movie {
   check: FamilyCheck;
 }
 
+// src/types/movie.ts
 export interface MovieListItem {
   id: string;
   name: string;
@@ -75,7 +75,15 @@ export interface MovieListItem {
   watchedDate: string;
   viewingPlatform: string;
   isBest5: boolean;
-  viewingUrl: string | null; // YouTube URLから動画IDを抽出するため変更
+  viewingUrl: string | null;
+  // フィルタリングに必要なプロパティを追加
+  director?: string;
+  cast?: string[];
+  screenwriter?: string;
+  highlights?: string[];
+  monthDb?: string;
+  check?: FamilyCheck;
+  status?: string;
 }
 
 export interface MovieDetailLayoutProps {

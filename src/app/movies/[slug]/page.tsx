@@ -103,7 +103,7 @@ export default async function Page(props: PageProps) {
         {/* ヘッダーセクション */}
         <div className="mb-8">
           <h1 className="text-2xl md:text-3xl font-bold mb-4">
-            『{movie.name}』こどもに見せても大丈夫?
+            『{movie.name}』こどもに見せても大丈夫? 気まずくない？
           </h1>
           
           

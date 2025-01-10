@@ -91,16 +91,19 @@ export default async function Page(props: PageProps) {
 
     return (
       <div className="max-w-5xl mx-auto px-4 py-8">
-        {/* 戻るボタン */}
-        <Link 
-          href="/movies" 
-          className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6 group"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" />
-          映画一覧に戻る
-        </Link>
+        {/* ナビゲーションバー */}
+        <div className="flex justify-between items-center mb-6">
+          <Link 
+            href="/movies" 
+            className="inline-flex items-center text-gray-600 hover:text-gray-900 group"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" />
+            映画一覧に戻る
+          </Link>
+          <ShareButton url={`${process.env.NEXT_PUBLIC_BASE_URL}/movies/${movie.slug}`} />
+        </div>
 
-        {/* ヘッダーセクション */}
+        {/* タイトルセクション */}
         <div className="mb-8">
           <h1 className="text-2xl md:text-3xl font-bold mb-4">
             『{movie.name}』こどもに見せても大丈夫?
@@ -305,10 +308,6 @@ export default async function Page(props: PageProps) {
             </div>
           </CardContent>
         </Card>
-                {/* シェアボタンの位置調整 */}
-        <div className="flex justify-center mt-12 mb-8">
-          <ShareButton />
-        </div>
       </div>
     );
   } catch (error) {

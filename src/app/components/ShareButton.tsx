@@ -1,26 +1,34 @@
-// src/app/components/ShareButton.tsx
+// src/components/ShareButton.tsx
 'use client';
 
 import { Share2 } from 'lucide-react';
+import { useToast } from '../components/ui/toast';
 
-export default function ShareButton() {
+interface ShareButtonProps {
+  url?: string;  // オプショナルなURL prop
+}
+
+export default function ShareButton({ url }: ShareButtonProps) {
+  const { toast } = useToast();
+
   const handleShareClick = async () => {
     try {
-      await navigator.clipboard.writeText(window.location.href);
-      // TODO: Add toast notification
-      console.log('URLをコピーしました');
-    } catch (err) {
-      console.error('URLのコピーに失敗しました:', err);
+      const shareUrl = url || window.location.href;
+      await navigator.clipboard.writeText(shareUrl);
+      toast('URLをコピーしました');
+    } catch {
+      toast('URLのコピーに失敗しました', 'error');
     }
   };
 
   return (
     <button 
       onClick={handleShareClick}
-      className="flex items-center gap-2 px-6 py-2 bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors"
+      className="inline-flex items-center text-gray-600 hover:text-gray-900 group"
+      aria-label="URLをコピー"
     >
-      <Share2 className="w-4 h-4" />
-      URLをシェア
+      <Share2 className="w-4 h-4 transition-transform group-hover:scale-110" />
+      <span className="ml-2">シェア</span>
     </button>
   );
 }

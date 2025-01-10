@@ -2,6 +2,7 @@
 import { Analytics } from '@vercel/analytics/react';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import { ToastProvider } from '../app/components/ui/toast';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -18,8 +19,10 @@ export default function RootLayout({
   return (
     <html lang="ja" className="h-full">
       <body className={`${inter.className} h-full bg-gray-50`}>
-        {children}
-        <Analytics />
+        <ToastProvider>
+          {children}
+          <Analytics />
+        </ToastProvider>
       </body>
     </html>
   );

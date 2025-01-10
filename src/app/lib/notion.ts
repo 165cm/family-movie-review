@@ -12,9 +12,6 @@ import {
 import { cache } from 'react';
 import { Movie, MovieListItem, FamilyCheck } from '@/types/movie';
 
-const notion = new Client({
-  auth: process.env.NOTION_API_KEY,
-});
 
 // RichText型の定義
 type NotionRichText = {
@@ -108,6 +105,21 @@ const getRichTextContent = (property?: { rich_text: NotionRichText[] } | null): 
   return property.rich_text[0]?.plain_text ?? '';
 };
 
+// Checkステータスの変換関数を追加
+const convertCheckStatus = (status: string | undefined | null): FamilyCheck => {
+  if (!status) return 'OK'; // デフォルトはOK
+  switch (status) {
+    case 'OK':
+      return 'OK';
+    case '気まずい':
+      return '気まずい';
+    case 'NG':
+      return 'NG';
+    default:
+      return 'OK';
+  }
+};
+
 const getTitleContent = (property?: { title: NotionRichText[] } | null): string => {
   if (!property?.title?.length) return '';
   return property.title[0]?.plain_text ?? '';
@@ -140,22 +152,16 @@ const getRichTextArray = (property?: { rich_text: NotionRichText[] } | null): st
 export const extractMovieData = (page: PageObjectResponse): Movie => {
   const props = page.properties as Partial<NotionPageProperties>;
 
-  // Checkプロパティの処理を修正
-  let checkValue: FamilyCheck = 'NG'; // デフォルト値
+  // Checkプロパティの処理を改善
+  const checkValue = convertCheckStatus(props.Check?.status?.name);
 
-  // デバッグログを詳細化
+  // デバッグログを残しつつ、実際の値を使用
   console.log('Check property debug:', {
     rawCheck: props.Check,
     type: props.Check?.type,
     value: props.Check?.status?.name,
     finalCheckValue: checkValue
   });
-  if (props.Check?.type === 'status' && props.Check.status?.name) {
-    const status = props.Check.status.name;
-    if (['OK', '気まずい', 'NG'].includes(status)) {
-      checkValue = status as FamilyCheck;
-    }
-  }
 
   return {
     id: page.id,
@@ -191,9 +197,26 @@ export const extractMovieData = (page: PageObjectResponse): Movie => {
 
 
 export const getMovieBySlug = cache(async (slug: string): Promise<Movie | null> => {
+  if (!slug) {
+    console.error('Slug is required');
+    return null;
+  }
+
   try {
+    const apiKey = process.env.NOTION_API_KEY;
+    const databaseId = process.env.NOTION_DATABASE_ID;
+
+    if (!apiKey || !databaseId) {
+      throw new Error('Missing environment variables');
+    }
+
+    const notion = new Client({
+      auth: apiKey,
+      notionVersion: '2022-06-28'
+    });
+
     const response = await notion.databases.query({
-      database_id: process.env.NOTION_DATABASE_ID!,
+      database_id: databaseId,
       filter: {
         and: [
           {
@@ -212,7 +235,11 @@ export const getMovieBySlug = cache(async (slug: string): Promise<Movie | null> 
       },
     });
 
-    if (!response.results[0]) return null;
+    if (!response.results[0]) {
+      console.warn(`No movie found with slug: ${slug}`);
+      return null;
+    }
+
     return extractMovieData(response.results[0] as PageObjectResponse);
   } catch (error) {
     console.error('Failed to fetch movie:', error);
@@ -226,21 +253,18 @@ export const getMovies = cache(async (): Promise<MovieListItem[]> => {
     const apiKey = process.env.NOTION_API_KEY;
     const databaseId = process.env.NOTION_DATABASE_ID;
 
-    console.log('Environment check:', {
-      hasApiKey: !!apiKey,
-      hasDatabaseId: !!databaseId,
-      apiKeyPrefix: apiKey?.substring(0, 4),
-      databaseIdPrefix: databaseId?.substring(0, 4)
-    });
-
-    if (!apiKey || !databaseId) {
-      throw new Error('Missing environment variables');
+    // この検証を緩和
+    if (!apiKey) {
+      throw new Error('NOTION_API_KEY is not defined');
+    }
+    if (!databaseId) {
+      throw new Error('NOTION_DATABASE_ID is not defined');
     }
 
-    // クライアントを関数内で初期化
+    // API Clientの初期化だけシンプルに
     const notion = new Client({
       auth: apiKey,
-      notionVersion: '2022-06-28' // バージョンを明示的に指定
+      notionVersion: '2022-06-28'
     });
 
     const response = await notion.databases.query({
@@ -259,10 +283,16 @@ export const getMovies = cache(async (): Promise<MovieListItem[]> => {
       ],
     });
 
+    if (!response.results.length) {
+      console.warn('No results returned from Notion API');
+      return [];
+    }
+
     console.log('Notion API Response:', {
       resultCount: response.results.length,
       hasMore: response.has_more,
-      firstItemId: response.results[0]?.id
+      firstItemId: response.results[0]?.id,
+      firstItemProperties: 'properties' in response.results[0]
     });
 
     const movies = response.results
@@ -270,12 +300,15 @@ export const getMovies = cache(async (): Promise<MovieListItem[]> => {
       .map(extractMovieListItem);
 
     return movies;
+
   } catch (error) {
     console.error('Notion API Error:', {
+      name: error instanceof Error ? error.name : 'Unknown',
       message: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined
     });
-    throw error;
+    // エラーを投げ直さずに空配列を返す
+    return [];
   }
 });
 

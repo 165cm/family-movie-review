@@ -1,0 +1,13 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /api/*
+Disallow: /_next/*
+Disallow: /static/*
+
+# Host
+Host: https://family-movie-review.vercel.app
+
+# Sitemaps
+Sitemap: https://family-movie-review.vercel.app/sitemap.xml
+Sitemap: https://family-movie-review.vercel.app/server-sitemap.xml

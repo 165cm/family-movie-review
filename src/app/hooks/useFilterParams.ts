@@ -8,9 +8,32 @@ export const useFilterParams = () => {
   const router = useRouter();
 
   const getFiltersFromUrl = useCallback((): MovieFilters => {
+    // searchParamsが存在しない場合のデフォルト値を設定
+    if (!searchParams) {
+      return {
+        search: '',
+        sortBy: 'totalScore',
+        tags: {
+          director: null,
+          screenwriter: null,
+          cast: null
+        }
+      };
+    }
+
+    // 型安全な方法でパラメータを取得
+    const sortParam = searchParams.get('sort');
+    const isValidSortOption = (sort: string | null): sort is SortOption => {
+      return sort === 'totalScore' || 
+             sort === 'fatherScore' || 
+             sort === 'motherScore' || 
+             sort === 'bigSisterScore' || 
+             sort === 'littleSisterScore';
+    };
+
     return {
-      search: searchParams.get('q') || '',
-      sortBy: (searchParams.get('sort') as SortOption) || 'totalScore', // 'latest' から 'totalScore' に変更
+      search: searchParams.get('q') ?? '',
+      sortBy: isValidSortOption(sortParam) ? sortParam : 'totalScore',
       tags: {
         director: searchParams.get('director'),
         screenwriter: searchParams.get('screenwriter'),
@@ -22,11 +45,19 @@ export const useFilterParams = () => {
   const updateFilters = useCallback((filters: MovieFilters) => {
     const params = new URLSearchParams();
     
-    if (filters.search) params.set('q', filters.search);
-    if (filters.sortBy !== 'totalScore') params.set('sort', filters.sortBy); // デフォルト値を 'totalScore' に変更
+    if (filters.search) {
+      params.set('q', filters.search);
+    }
     
+    if (filters.sortBy !== 'totalScore') {
+      params.set('sort', filters.sortBy);
+    }
+    
+    // tagsのnull安全な処理
     Object.entries(filters.tags).forEach(([key, value]) => {
-      if (value) params.set(key, value);
+      if (value !== null) {
+        params.set(key, value);
+      }
     });
 
     router.push(`?${params.toString()}`);

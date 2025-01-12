@@ -1,12 +1,11 @@
 // src/app/lib/filters/types.ts
-// src/app/lib/filters/types.ts
 export type SortOption = 
-  | 'totalScore' // 総合評価
-  | 'fatherScore' // 父の評価
-  | 'motherScore' // 母の評価
-  | 'bigSisterScore' // 姉の評価
-  | 'littleSisterScore'; // 妹の評価
-
+  | 'totalScore'
+  | 'fatherScore'
+  | 'motherScore'
+  | 'bigSisterScore'
+  | 'littleSisterScore';
+  
 export type FilterType = 
   | 'director' 
   | 'cast' 

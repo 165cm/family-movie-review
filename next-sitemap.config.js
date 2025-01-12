@@ -1,7 +1,6 @@
-// next-sitemap.config.js
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000',
+  siteUrl: 'https://family-movie-review.vercel.app',  // 完全なURLを指定
   generateRobotsTxt: true,
   robotsTxtOptions: {
     policies: [
@@ -12,11 +11,13 @@ module.exports = {
       },
     ],
   },
-  exclude: ['/api/*', '/_next/*', '/static/*'],
+  exclude: ['/api/*', '/_next/*', '/static/*', '/server-sitemap.xml'],  // 除外パスを明示的に指定
   generateIndexSitemap: false,
+  sitemapSize: 7000,  // 十分大きなサイズを指定
   changefreq: 'weekly',
   priority: 0.7,
   transform: async (config, path) => {
+    // 映画詳細ページの優先度を高く設定
     if (path.startsWith('/movies/')) {
       return {
         loc: path,
@@ -25,6 +26,7 @@ module.exports = {
         lastmod: new Date().toISOString(),
       }
     }
+    // その他のページ
     return {
       loc: path,
       changefreq: 'weekly',

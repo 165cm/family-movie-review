@@ -12,10 +12,9 @@ module.exports = {
       },
     ],
   },
-  // server-sitemap.xmlを一時的に除外
-  exclude: ['/api/*', '/_next/*', '/static/*', '/server-sitemap.xml'],
+  exclude: ['/api/*', '/_next/*', '/static/*'],
   generateIndexSitemap: false,
-  changefreq: 'daily',
+  changefreq: 'weekly',
   priority: 0.7,
   transform: async (config, path) => {
     if (path.startsWith('/movies/')) {
@@ -28,9 +27,9 @@ module.exports = {
     }
     return {
       loc: path,
-      changefreq: config.changefreq,
-      priority: config.priority,
-      lastmod: config.autoLastmod ? new Date().toISOString() : undefined,
+      changefreq: 'weekly',
+      priority: 0.7,
+      lastmod: new Date().toISOString(),
     }
   },
 }

@@ -36,6 +36,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja" className="h-full">
+      <head>
+        <meta name="google-site-verification" content="qfkItQ8yqFGUHaV4WJ_ZSd_4E_aaIMK9XQNv3iqaFGE" />
+      </head>
       <body className={`${inter.className} h-full bg-gray-50`}>
         <ToastProvider>
           {children}

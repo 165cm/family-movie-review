@@ -1,3 +1,4 @@
+// next-sitemap.config.js
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
   siteUrl: process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000',
@@ -10,11 +11,9 @@ module.exports = {
         disallow: ['/api/*', '/_next/*', '/static/*'],
       },
     ],
-    additionalSitemaps: [
-      `${process.env.NEXT_PUBLIC_BASE_URL}/server-sitemap.xml`,
-    ],
   },
-  exclude: ['/api/*', '/_next/*', '/static/*'],
+  // server-sitemap.xmlを一時的に除外
+  exclude: ['/api/*', '/_next/*', '/static/*', '/server-sitemap.xml'],
   generateIndexSitemap: false,
   changefreq: 'daily',
   priority: 0.7,

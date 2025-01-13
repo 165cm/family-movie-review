@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "postbuild": "next-sitemap --config next-sitemap.config.js",
+    "postbuild": "next-sitemap",
     "start": "next start",
     "lint": "next lint",
     "deploy": "vercel deploy --prod",
@@ -20,7 +20,6 @@
     "framer-motion": "^11.15.0",
     "lucide-react": "^0.469.0",
     "next": "15.1.2",
-    "next-sitemap": "^4.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-intersection-observer": "^9.14.0",
@@ -36,6 +35,7 @@
     "autoprefixer": "^10.4.20",
     "eslint": "^9",
     "eslint-config-next": "15.1.2",
+    "next-sitemap": "^4.2.3",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.3"

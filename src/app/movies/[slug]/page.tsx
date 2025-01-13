@@ -83,7 +83,7 @@ export async function generateMetadata(
     movie.familyScores.littleSister) / 8).toFixed(1);
 
   return {
-    title: `『${movie.name}』こどもに見せても大丈夫? | 家族で観る映画レビュー`,
+    title: `『${movie.name}』こどもと見ても大丈夫? | 家族で観る映画レビュー`,
     description: `${movie.name}を家族で観てみました。総合評価${avgScore}点。${movie.synopsis.slice(0, 100)}...`,
     keywords: [
       ...movie.cast,
@@ -98,7 +98,7 @@ export async function generateMetadata(
       canonical: `${process.env.NEXT_PUBLIC_BASE_URL}/movies/${slug}`,
     },
     openGraph: {
-      title: `『${movie.name}』こどもに見せても大丈夫? 家族の評価：${avgScore}点`,
+      title: `『${movie.name}』こどもと見ても大丈夫? 家族の評価：${avgScore}点`,
       description: movie.synopsis,
       type: 'article',
       url: `${process.env.NEXT_PUBLIC_BASE_URL}/movies/${slug}`,
@@ -113,7 +113,7 @@ export async function generateMetadata(
     },
     twitter: {
       card: 'summary_large_image',
-      title: `『${movie.name}』こどもに見せても大丈夫? | 家族で観る映画レビュー`,
+      title: `『${movie.name}』こどもと見ても大丈夫? | 家族で観る映画レビュー`,
       description: `家族の評価：${avgScore}点。${movie.synopsis.slice(0, 100)}...`,
       images: ['/ogp-default.png'],
     },
@@ -161,7 +161,7 @@ export default async function Page(props: PageProps) {
           {/* タイトルセクション */}
           <div className="mb-8">
             <h1 className="text-2xl md:text-3xl font-bold mb-4">
-              『{movie.name}』こどもに見せても大丈夫?
+              『{movie.name}』こどもと見ても大丈夫?
             </h1>
             
             

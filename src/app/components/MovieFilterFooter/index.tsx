@@ -6,11 +6,15 @@ import { SortOption } from '@/app/lib/filters/types';
 interface MovieFilterFooterProps {
   onSearch: (term: string) => void;
   onSort: (sortBy: SortOption) => void;
+  currentSort?: SortOption;
+  searchTerm?: string;
 }
 
 export const MovieFilterFooter: React.FC<MovieFilterFooterProps> = ({
   onSearch,
-  onSort
+  onSort,
+  currentSort = 'totalScore',
+  searchTerm = ''
 }) => {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-50">
@@ -23,12 +27,13 @@ export const MovieFilterFooter: React.FC<MovieFilterFooterProps> = ({
               type="search"
               placeholder="タイトルで検索..."
               className="w-full pl-10 pr-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={searchTerm}
               onChange={(e) => onSearch(e.target.value)}
             />
           </div>
-
           {/* ソート選択 */}
           <select
+            value={currentSort}
             onChange={(e) => onSort(e.target.value as SortOption)}
             className="px-4 py-2 border rounded-full text-gray-600 bg-white hover:bg-gray-50"
           >

@@ -1,11 +1,12 @@
-# public/robots.txt
+# *
 User-agent: *
 Allow: /
-
-# Block system paths
 Disallow: /api/*
 Disallow: /_next/*
 Disallow: /static/*
 
-# Sitemap
+# Host
+Host: https://family-movie-review.vercel.app
+
+# Sitemaps
 Sitemap: https://family-movie-review.vercel.app/sitemap.xml

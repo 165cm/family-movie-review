@@ -21,10 +21,11 @@ export function Rating({ score, size = 'md' }: RatingProps) {
       {[...Array(5)].map((_, i) => (
         <Star
           key={i}
+          strokeWidth={0.5} // 線の太さを細くする（デフォルトは2）
           className={`${sizeClasses[size]} ${
             i < starCount 
               ? 'fill-yellow-400 text-yellow-400' 
-              : 'fill-gray-200 text-gray-200'
+              : 'fill-gray-100 text-gray-100 opacity-100' // 不透明度を追加
           }`}
         />
       ))}

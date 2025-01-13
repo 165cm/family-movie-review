@@ -11,6 +11,15 @@ import ShareButton from '@/app/components/ShareButton';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import StructuredData from '../../components/StructuredData';
+import { calculateTotalScore, formatIndividualScore } from '@/app/lib/utils/score';
+
+const FAMILY_COLORS = {
+  father: '#4CAF50',    // ソフトグリーン
+  mother: '#E1BEE7',    // ライトパープル
+  bigSister: '#81D4FA', // スカイブルー
+  littleSister: '#FF9ED2', // ソフトピンク
+  total: '#FFD54F'      // ウォームイエロー
+} as const;
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -77,14 +86,11 @@ export async function generateMetadata(
     };
   }
 
-  const avgScore = ((movie.familyScores.father + 
-    movie.familyScores.mother + 
-    movie.familyScores.bigSister + 
-    movie.familyScores.littleSister) / 8).toFixed(1);
+  const { displayScore } = calculateTotalScore(movie.familyScores);
 
   return {
     title: `『${movie.name}』こどもと見ても大丈夫? | 家族で観る映画レビュー`,
-    description: `${movie.name}を家族で観てみました。総合評価${avgScore}点。${movie.synopsis.slice(0, 100)}...`,
+    description: `${movie.name}を家族で観てみました。総合評価${displayScore}点。${movie.synopsis.slice(0, 100)}...`,
     keywords: [
       ...movie.cast,
       movie.director,
@@ -98,7 +104,7 @@ export async function generateMetadata(
       canonical: `${process.env.NEXT_PUBLIC_BASE_URL}/movies/${slug}`,
     },
     openGraph: {
-      title: `『${movie.name}』こどもと見ても大丈夫? 家族の評価：${avgScore}点`,
+      title: `『${movie.name}』こどもと見ても大丈夫? 家族の評価：${displayScore}点`,
       description: movie.synopsis,
       type: 'article',
       url: `${process.env.NEXT_PUBLIC_BASE_URL}/movies/${slug}`,
@@ -107,14 +113,14 @@ export async function generateMetadata(
           url: '/ogp-default.png',
           width: 1200,
           height: 630,
-          alt: `${movie.name}の映画情報 - 家族の評価：${avgScore}点`,
+          alt: `${movie.name}の映画情報 - 家族の評価：${displayScore}点`,
         }
       ],
     },
     twitter: {
       card: 'summary_large_image',
       title: `『${movie.name}』こどもと見ても大丈夫? | 家族で観る映画レビュー`,
-      description: `家族の評価：${avgScore}点。${movie.synopsis.slice(0, 100)}...`,
+      description: `家族の評価：${displayScore}点。${movie.synopsis.slice(0, 100)}...`,
       images: ['/ogp-default.png'],
     },
   };
@@ -141,6 +147,8 @@ export default async function Page(props: PageProps) {
     if (!movie) {
       notFound();
     }
+
+    const { displayScore, starRating } = calculateTotalScore(movie.familyScores);
 
     return (
       <>
@@ -236,42 +244,45 @@ export default async function Page(props: PageProps) {
             {/* 右: 評価 */}
             <Card className="shadow-sm">
               <CardContent className="p-6">
-                {/* 家族の総合評価 */}
-                <div className="mb-4">
-                  <h3 className="text-lg font-bold text-gray-700 mb-2" style={{ marginTop: "20px" }}>家族の総合評価</h3>
-                  <div className="flex items-center gap-3 mb-6">
+                {/* ヘッダーと総合評価を横並びに */}
+                <div className="flex justify-between items-center mb-4" style={{ marginTop: "20px" }}>
+                  <h3 className="text-lg font-bold text-gray-700">家族の総合評価</h3>
+                  <div className="flex items-center gap-3">
                     <span className="text-2xl font-bold text-yellow-500">
-                      {((movie.familyScores.father + 
-                        movie.familyScores.mother + 
-                        movie.familyScores.bigSister + 
-                        movie.familyScores.littleSister) / 8).toFixed(1)}
+                      {displayScore}
                     </span>
-                    <Rating 
-                      score={(movie.familyScores.father + 
-                            movie.familyScores.mother + 
-                            movie.familyScores.bigSister + 
-                            movie.familyScores.littleSister) / 8} 
-                      size="lg" 
-                    />
+                    <Rating score={starRating} size="lg" color="#FFD700" />
                   </div>
                 </div>
 
-                {/* 個別の評価 */}
-                <div className="grid grid-cols-2 gap-3">
+                {/* 個別評価 */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {[
-                    { role: '父', score: movie.familyScores.father },
-                    { role: '母', score: movie.familyScores.mother },
-                    { role: '姉', score: movie.familyScores.bigSister },
-                    { role: '妹', score: movie.familyScores.littleSister }
-                  ].map(({ role, score }) => (
-                    <div key={role} className="flex items-center justify-between bg-gray-50 px-3 py-2 rounded">
-                      <span className="font-medium text-sm">{role}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold">{(score / 2).toFixed(1)}</span>
-                        <Rating score={score / 2} size="sm" />
+                    { role: '父', colorKey: 'father' as const },
+                    { role: '母', colorKey: 'mother' as const },
+                    { role: '姉', colorKey: 'bigSister' as const },
+                    { role: '妹', colorKey: 'littleSister' as const }
+                  ].map(({ role, colorKey }) => {
+                    const { displayScore, starRating } = formatIndividualScore(movie.familyScores[colorKey]);
+                    return (
+                      <div key={role} className="flex items-center justify-between bg-gray-50 px-4 py-3 rounded">
+                        <span className="font-medium">{role}</span>
+                        <div className="flex items-center gap-2">
+                          <span 
+                            className="text-lg font-bold"
+                            style={{ color: FAMILY_COLORS[colorKey] }}
+                          >
+                            {displayScore}
+                          </span>
+                          <Rating 
+                            score={starRating} 
+                            size="md" 
+                            color={FAMILY_COLORS[colorKey]} 
+                          />
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
@@ -364,7 +375,7 @@ export default async function Page(props: PageProps) {
             </CardContent>
           </Card>
           </div>
-      </>
+        </>
     );
   } catch (error) {
     console.error('Error loading movie:', error);

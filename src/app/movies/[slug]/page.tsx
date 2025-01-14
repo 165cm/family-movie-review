@@ -12,6 +12,9 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import StructuredData from '../../components/StructuredData';
 import { calculateTotalScore, formatIndividualScore } from '@/app/lib/utils/score';
+import { RecommendedMovies } from '../../components/RecommendedMovies';
+import { getRecommendedMovies } from '@/app/lib/utils/recommendation';
+
 
 const FAMILY_COLORS = {
   father: '#4CAF50',    // ソフトグリーン
@@ -143,10 +146,14 @@ export default async function Page(props: PageProps) {
   try {
     const { slug } = await props.params;
     const movie = await getMovieBySlug(slug);
+    const allMovies = await getMovies(); // 全ての映画を取得
 
     if (!movie) {
       notFound();
     }
+
+    // レコメンド映画を取得
+    const recommendedMovies = getRecommendedMovies(movie, allMovies);
 
     const { displayScore, starRating } = calculateTotalScore(movie.familyScores);
 
@@ -375,6 +382,11 @@ export default async function Page(props: PageProps) {
             </CardContent>
           </Card>
           </div>
+          {/* レコメンデーション追加 */}
+          <RecommendedMovies
+            currentMovie={movie}
+            recommendedMovies={recommendedMovies}
+          />
         </>
     );
   } catch (error) {

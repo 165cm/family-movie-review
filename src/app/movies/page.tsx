@@ -1,17 +1,42 @@
 // src/app/movies/page.tsx
 import { getMovies } from '@/app/lib/notion';
-import { HeroSection } from '../components/ui/hero-section';
-import { Suspense } from 'react';
 import { MovieGridWithFilters } from '../components/MovieGridWithFilters';
 import { Movie } from '@/types/movie';
+import type { Metadata } from 'next';
+import { GenreTagCloud } from '../components/GenreTagCloud';
 
 export const revalidate = 3600;
 export const dynamic = 'force-dynamic';
 
-export default async function MoviesPage() {
+// 正しい型定義
+type SearchParamsProps = {
+  searchParams: Promise<{ [key: string]: string | undefined }>
+};
+
+export async function generateMetadata({
+  searchParams,
+}: SearchParamsProps): Promise<Metadata> {
+  const params = await searchParams;
+  const genre = params.genre;
+  
+  return {
+    title: genre 
+      ? `${genre}の映画レビュー一覧 | 家族で観る映画レビュー` 
+      : '映画レビュー一覧 | 家族で観る映画レビュー',
+    description: genre
+      ? `${genre}ジャンルの映画レビューを家族の視点で紹介。子供と一緒に観られるかどうかの参考に。`
+      : '家族で観られる映画のレビューを紹介。子供と一緒に観られるかどうかの参考に。',
+  };
+}
+
+export default async function Page({
+  searchParams,
+}: SearchParamsProps) {
   try {
+    const params = await searchParams;
     const movieListItems = await getMovies();
-    
+    const selectedGenre = typeof params.genre === 'string' ? params.genre : undefined;
+
     if (!movieListItems || movieListItems.length === 0) {
       return (
         <div className="min-h-[50vh] flex items-center justify-center bg-gray-50">
@@ -23,8 +48,25 @@ export default async function MoviesPage() {
       );
     }
 
+    // ジャンル集計
+    const genreCounts = movieListItems.reduce((acc, movie) => {
+      if (movie.genre) {
+        acc[movie.genre] = (acc[movie.genre] || 0) + 1;
+      }
+      return acc;
+    }, {} as Record<string, number>);
+
+    const genres = Object.entries(genreCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
+
+    // フィルタリング
+    const filteredMovies = selectedGenre
+      ? movieListItems.filter(movie => movie.genre === selectedGenre)
+      : movieListItems;
+
     // 全データを変換
-    const allMovies: Movie[] = movieListItems.map(item => ({
+    const allMovies: Movie[] = filteredMovies.map(item => ({
       ...item,
       reviews: {
         father: '',
@@ -41,21 +83,27 @@ export default async function MoviesPage() {
       check: item.check ?? 'OK'
     }));
 
-    // おすすめ映画の取得
-    const featuredMovie = movieListItems.find(movie => movie.isBest5);
-
     return (
       <main className="min-h-screen bg-gray-50">
-        <Suspense fallback={<HeroSectionSkeleton />}>
-          <HeroSection featuredMovie={featuredMovie} />
-        </Suspense>
-        
-        <div className="container mx-auto px-4 py-8">
-          <h2 className="text-2xl font-bold mb-8">映画を探す</h2>
+      {/* ヒーローセクション追加 */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-12">
+        <div className="container mx-auto px-4">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">
+            家族で観た映画レビュー
+          </h1>
+          <p className="text-lg md:text-xl max-w-2xl mb-2">
+          毎週１回映画の日！小中学生の子どもたちと一緒に観た映画をご紹介
+          </p>
+        </div>
+      </div>
+        <div className="container mx-auto px-4 py-8">          
+          <GenreTagCloud 
+            genres={genres}
+            selectedGenre={selectedGenre}
+            totalCount={movieListItems.length}
+          />
           
-          <Suspense fallback={<MovieGridSkeleton />}>
-            <MovieGridWithFilters movies={allMovies} />
-          </Suspense>
+          <MovieGridWithFilters movies={allMovies} />
         </div>
       </main>
     );
@@ -63,29 +111,6 @@ export default async function MoviesPage() {
     console.error('MoviesPage Error:', error);
     return <ErrorFallback />;
   }
-}
-
-function HeroSectionSkeleton() {
-  return (
-    <div className="bg-gradient-to-r from-blue-600 to-purple-600 animate-pulse h-64" />
-  );
-}
-
-function MovieGridSkeleton() {
-  return (
-    <div className="space-y-6">
-      <div className="animate-pulse h-12 bg-gray-100 rounded-lg" />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[...Array(6)].map((_, i) => (
-          <div 
-            key={i} 
-            className="animate-pulse bg-gray-100 rounded-lg h-64"
-            style={{animationDelay: `${i * 100}ms`}}
-          />
-        ))}
-      </div>
-    </div>
-  );
 }
 
 function ErrorFallback() {

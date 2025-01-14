@@ -10,7 +10,7 @@ import {
   UrlPropertyItemObjectResponse
 } from '@notionhq/client/build/src/api-endpoints';
 import { cache } from 'react';
-import { Movie, MovieListItem, FamilyCheck } from '@/types/movie';
+import { Movie, MovieListItem } from '@/types/movie';
 
 
 // RichText型の定義
@@ -97,6 +97,7 @@ interface NotionPageProperties extends Record<string, unknown> {
   BEST5: MultiSelectPropertyItemObjectResponse;
   'DB-Month': SelectPropertyItemObjectResponse;
   Check: StatusPropertyItemObjectResponse;  // Checkプロパティを修正
+  Genre: SelectPropertyItemObjectResponse;  // Genreプロパティを追加
 }
 
 // ヘルパー関数の安全な実装
@@ -105,20 +106,6 @@ const getRichTextContent = (property?: { rich_text: NotionRichText[] } | null): 
   return property.rich_text[0]?.plain_text ?? '';
 };
 
-// Checkステータスの変換関数を追加
-const convertCheckStatus = (status: string | undefined | null): FamilyCheck => {
-  if (!status) return 'OK'; // デフォルトはOK
-  switch (status) {
-    case 'OK':
-      return 'OK';
-    case '気まずい':
-      return '気まずい';
-    case 'NG':
-      return 'NG';
-    default:
-      return 'OK';
-  }
-};
 
 const getTitleContent = (property?: { title: NotionRichText[] } | null): string => {
   if (!property?.title?.length) return '';
@@ -152,21 +139,10 @@ const getRichTextArray = (property?: { rich_text: NotionRichText[] } | null): st
 export const extractMovieData = (page: PageObjectResponse): Movie => {
   const props = page.properties as Partial<NotionPageProperties>;
 
-  // Checkプロパティの処理を改善
-  const checkValue = convertCheckStatus(props.Check?.status?.name);
-
-  // デバッグログを残しつつ、実際の値を使用
-  console.log('Check property debug:', {
-    rawCheck: props.Check,
-    type: props.Check?.type,
-    value: props.Check?.status?.name,
-    finalCheckValue: checkValue
-  });
-
   return {
     id: page.id,
     name: getTitleContent(props.Name),
-    check: checkValue,
+    check: props.Check?.status?.name ?? '',
     slug: getRichTextContent(props.Slug),
     synopsis: getRichTextContent(props.Synopsis),
     totalScore: getNumberContent(props.TotalScore),
@@ -182,6 +158,7 @@ export const extractMovieData = (page: PageObjectResponse): Movie => {
       bigSister: getRichTextContent(props.BigSisReview),
       littleSister: getRichTextContent(props.LittleSisReview),
     },
+    genre: getSelectContent(props.Genre) || '',  // getSelectContent関数を使用
     director: getRichTextContent(props.Director),
     cast: getMultiSelectContent(props.Cast),
     screenwriter: getRichTextContent(props.Screenwriter),
@@ -253,53 +230,58 @@ export const getMovies = cache(async (): Promise<MovieListItem[]> => {
     const apiKey = process.env.NOTION_API_KEY;
     const databaseId = process.env.NOTION_DATABASE_ID;
 
-    // この検証を緩和
-    if (!apiKey) {
-      throw new Error('NOTION_API_KEY is not defined');
-    }
-    if (!databaseId) {
-      throw new Error('NOTION_DATABASE_ID is not defined');
+    if (!apiKey || !databaseId) {
+      throw new Error('Missing environment variables');
     }
 
-    // API Clientの初期化だけシンプルに
     const notion = new Client({
       auth: apiKey,
       notionVersion: '2022-06-28'
     });
 
-    const response = await notion.databases.query({
-      database_id: databaseId,
-      filter: {
-        property: 'Status',
-        status: {
-          equals: 'Published'
-        }
-      },
-      sorts: [
-        {
-          property: 'WatchedDate',
-          direction: 'descending',
-        }
-      ],
-    });
+    let allMovies: MovieListItem[] = [];
+    let hasMore = true;
+    let startCursor: string | undefined = undefined;
 
-    if (!response.results.length) {
-      console.warn('No results returned from Notion API');
-      return [];
+    while (hasMore) {
+      const response = await notion.databases.query({
+        database_id: databaseId,
+        start_cursor: startCursor,
+        page_size: 100,
+        filter: {
+          property: 'Status',
+          status: {
+            equals: 'Published'
+          }
+        },
+        sorts: [
+          {
+            property: 'WatchedDate',
+            direction: 'descending',
+          }
+        ],
+      });
+
+      const movies = response.results
+        .filter((page): page is PageObjectResponse => 'properties' in page)
+        .map(extractMovieListItem);
+
+      allMovies = [...allMovies, ...movies];
+
+      hasMore = response.has_more;
+      startCursor = response.next_cursor ?? undefined;
+
+      // 300件を超えた場合は取得を中止（任意の上限）
+      if (allMovies.length >= 300) {
+        hasMore = false;
+      }
+
+      // APIレート制限を考慮して少し待機
+      await new Promise(resolve => setTimeout(resolve, 200));
     }
 
-    console.log('Notion API Response:', {
-      resultCount: response.results.length,
-      hasMore: response.has_more,
-      firstItemId: response.results[0]?.id,
-      firstItemProperties: 'properties' in response.results[0]
-    });
-
-    const movies = response.results
-      .filter((page): page is PageObjectResponse => 'properties' in page)
-      .map(extractMovieListItem);
-
-    return movies;
+    console.log('Total movies fetched:', allMovies.length);
+    return allMovies;
 
   } catch (error) {
     console.error('Notion API Error:', {
@@ -307,7 +289,6 @@ export const getMovies = cache(async (): Promise<MovieListItem[]> => {
       message: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined
     });
-    // エラーを投げ直さずに空配列を返す
     return [];
   }
 });
@@ -325,6 +306,9 @@ export const extractMovieListItem = (page: PageObjectResponse): MovieListItem =>
     watchedDate: movie.watchedDate,
     viewingPlatform: movie.viewingPlatform,
     viewingUrl: movie.viewingUrl,  // viewingUrlを追加
+    genre: movie.genre,  // genreフィールドを追加
     isBest5: movie.isBest5,
+    check: movie.check,
+
   };
 };

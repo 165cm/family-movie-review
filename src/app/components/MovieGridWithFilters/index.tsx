@@ -108,7 +108,7 @@ export const MovieGridWithFilters: React.FC<MovieGridWithFiltersProps> = ({
         {debouncedSearchTerm ? (
           `${filteredMovies.length}件が見つかりました`
         ) : (
-          `${formatTotalCount(filteredMovies.length)}以上から${displayedMovies.length}件を表示`
+          `${formatTotalCount(filteredMovies.length)}から${displayedMovies.length}件を表示`
         )}
       </div>
 

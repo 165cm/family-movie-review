@@ -69,7 +69,7 @@ export function RecommendedMovies({ recommendedMovies }: RecommendedMoviesProps)
                     {movie.check && (
                       <span className={`
                         px-2 py-1 rounded-full text-xs font-medium
-                        ${movie.check === 'OK' ? 'bg-green-100 text-green-800' : 
+                        ${movie.check === '家族OK' ? 'bg-green-100 text-green-800' : 
                           movie.check === '気まずい' ? 'bg-yellow-100 text-yellow-800' :
                           'bg-red-100 text-red-800'}
                       `}>

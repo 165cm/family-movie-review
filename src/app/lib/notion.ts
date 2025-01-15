@@ -98,6 +98,7 @@ interface NotionPageProperties extends Record<string, unknown> {
   'DB-Month': SelectPropertyItemObjectResponse;
   Check: StatusPropertyItemObjectResponse;  // Checkプロパティを修正
   Genre: SelectPropertyItemObjectResponse;  // Genreプロパティを追加
+  Duration: NumberPropertyItemObjectResponse;  // 上映時間を追加
 }
 
 // ヘルパー関数の安全な実装
@@ -169,6 +170,7 @@ export const extractMovieData = (page: PageObjectResponse): Movie => {
     status: props.Status?.status?.name ?? 'Draft',
     isBest5: Boolean(props.BEST5?.multi_select?.length),
     monthDb: getSelectContent(props['DB-Month']),
+    duration: getNumberContent(props.Duration),  // 上映時間を追加
   };
 };
 

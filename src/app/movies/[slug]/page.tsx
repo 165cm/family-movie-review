@@ -3,18 +3,17 @@ import { getMovieBySlug, getMovies } from '@/app/lib/notion';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';  // Metadataのインポートを追加
 import { Card, CardContent } from "../../components/ui/card";
-import { Avatar, AvatarFallback } from '../../components/ui/avatar';
 import { familyColors } from '@/app/lib/theme';
-import { Clock } from 'lucide-react';
+import { Clock, Timer } from 'lucide-react';
 import { Rating } from '../../components/ui/rating';
-import ShareButton from '@/app/components/ShareButton';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-import StructuredData from '../../components/StructuredData';
 import { calculateTotalScore, formatIndividualScore } from '@/app/lib/utils/score';
 import { RecommendedMovies } from '../../components/RecommendedMovies';
 import { getRecommendedMovies } from '@/app/lib/utils/recommendation';
-
+import { MovieNavigation } from '@/app/components/MovieNavigation';
+import { BreadcrumbNav } from '@/app/components/BreadcrumbNav';
+import { getAdjacentMovies } from '@/app/lib/utils/navigation';
+import { SortOption } from '@/app/lib/filters/types';
+import StructuredData from '@/app/components/StructuredData';
 
 const FAMILY_COLORS = {
   father: '#4CAF50',    // ソフトグリーン
@@ -144,66 +143,79 @@ export async function generateStaticParams() {
 
 export default async function Page(props: PageProps) {
   try {
+    const allMovies = await getMovies();
     const { slug } = await props.params;
+    const searchParams = await props.searchParams;
+    const { sort = 'totalScore', genre } = searchParams;
+    
     const movie = await getMovieBySlug(slug);
-    const allMovies = await getMovies(); // 全ての映画を取得
-
     if (!movie) {
       notFound();
     }
 
+    const { 
+      prevMovie, 
+      nextMovie, 
+      currentIndex, 
+      totalCount 
+    } = getAdjacentMovies(
+      movie, 
+      allMovies, 
+      sort as SortOption,
+      genre as string
+    );
+
     // レコメンド映画を取得
     const recommendedMovies = getRecommendedMovies(movie, allMovies);
 
+    // スコアの計算を行う
     const { displayScore, starRating } = calculateTotalScore(movie.familyScores);
 
     return (
       <>
-        <StructuredData movie={movie} />
         <div className="max-w-5xl mx-auto px-4 py-8">
-          {/* ナビゲーションバー */}
-          <div className="flex justify-between items-center mb-6">
-            <Link 
-              href="/movies" 
-              className="inline-flex items-center text-gray-600 hover:text-gray-900 group"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" />
-              映画一覧に戻る
-            </Link>
-            <ShareButton url={`${process.env.NEXT_PUBLIC_BASE_URL}/movies/${movie.slug}`} />
-          </div>
+          {/* パンくずナビとナビゲーション */}
+            <BreadcrumbNav 
+              genre={movie.genre} 
+              movieName={movie.name}
+            />
 
-          {/* タイトルセクション */}
-          <div className="mb-8">
-            <h1 className="text-2xl md:text-3xl font-bold mb-4">
-              『{movie.name}』こどもと見ても大丈夫?
-            </h1>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {/* 既存のメタ情報 */}
+            <span className="inline-flex items-center bg-gray-100 px-3 py-1 rounded-full text-sm">
+              <Clock className="w-4 h-4 mr-1" />
+              {new Date(movie.watchedDate).toLocaleDateString('ja-JP')}
+            </span>
             
-            
-            {/* メタ情報 */}
-            <div className="flex flex-wrap gap-2 mb-4">
+            {/* 上映時間 */}
+            {movie.duration && (
               <span className="inline-flex items-center bg-gray-100 px-3 py-1 rounded-full text-sm">
-                <Clock className="w-4 h-4 mr-1" />
-                {new Date(movie.watchedDate).toLocaleDateString('ja-JP')}
+                <Timer className="w-4 h-4 mr-1" />
+                {movie.duration}分
               </span>
-              <div className="flex items-center gap-1">
-                <span className="text-sm text-gray-600">監督:</span>
-                <span className="inline-flex items-center bg-gray-100 px-3 py-1 rounded-full text-sm">
-                  {movie.director}
-                </span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span className="text-sm text-gray-600">脚本:</span>
-                <span className="inline-flex items-center bg-gray-100 px-3 py-1 rounded-full text-sm">
-                  {movie.screenwriter}
-                </span>
-              </div>
+            )}
+            
+            {/* 監督情報 */}
+            <div className="inline-flex items-center gap-1">
+              <span className="text-sm text-gray-600">監督:</span>
+              <span className="inline-flex items-center bg-gray-100 px-3 py-1 rounded-full text-sm">
+                {movie.director}
+              </span>
+            </div>
+            
+            {/* 脚本家情報 */}
+            <div className="inline-flex items-center gap-1">
+              <span className="text-sm text-gray-600">脚本:</span>
+              <span className="inline-flex items-center bg-gray-100 px-3 py-1 rounded-full text-sm">
+                {movie.screenwriter}
+              </span>
             </div>
 
-            {/* 出演者タグ */}
-            <div className="flex flex-wrap gap-2">
+            {/* 出演者情報（まとめて表示） */}
+            <div className="inline-flex items-center gap-1 flex-wrap">
+              <span className="text-sm text-gray-600">出演:</span>
               {movie.cast.map((actor, index) => (
-                <span key={index} className="bg-gray-100 px-3 py-1 text-sm rounded-md hover:bg-gray-200 cursor-pointer transition-colors">
+                <span key={index} className="inline-flex items-center bg-gray-100 px-3 py-1 rounded-full text-sm">
                   {actor}
                 </span>
               ))}
@@ -253,7 +265,7 @@ export default async function Page(props: PageProps) {
               <CardContent className="p-6">
                 {/* ヘッダーと総合評価を横並びに */}
                 <div className="flex justify-between items-center mb-4" style={{ marginTop: "20px" }}>
-                  <h3 className="text-lg font-bold text-gray-700">家族の総合評価</h3>
+                  <h3 className="text-lg font-bold text-gray-700">総合評価</h3>
                   <div className="flex items-center gap-3">
                     <span className="text-2xl font-bold text-yellow-500">
                       {displayScore}
@@ -312,82 +324,61 @@ export default async function Page(props: PageProps) {
           {/* レビュー（タブなしバージョン） */}
           <Card className="shadow-sm">
             <CardContent className="p-6">
-              <h3 className="text-lg font-bold text-gray-700 mb-4"　style={{ marginTop: "20px" }}>家族の感想</h3>
-              <div className="space-y-6">
-
-                <CardContent className="p-6">
-                  <div className="space-y-6">
-                    {/* 父のレビュー */}
-                    <div className="flex items-start gap-4">
-                      <Avatar className="w-10 h-10">
-                        <AvatarFallback style={{ backgroundColor: familyColors.father.background, color: familyColors.father.primary }}>
-                          父
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <p className="text-sm text-gray-500 mb-1">論理派パパ</p>
-                        <div className="rounded-lg p-4" style={{ backgroundColor: familyColors.father.background }}>
-                          <p>{movie.reviews.father || 'レビューはまだありません'}</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* 母のレビュー */}
-                    <div className="flex items-start gap-4">
-                      <Avatar className="w-10 h-10">
-                        <AvatarFallback style={{ backgroundColor: familyColors.mother.background, color: familyColors.mother.primary }}>
-                          母
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <p className="text-sm text-gray-500 mb-1">共感派ママ</p>
-                        <div className="rounded-lg p-4" style={{ backgroundColor: familyColors.mother.background }}>
-                          <p>{movie.reviews.mother || 'レビューはまだありません'}</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* 姉のレビュー */}
-                    <div className="flex items-start gap-4">
-                      <Avatar className="w-10 h-10">
-                        <AvatarFallback style={{ backgroundColor: familyColors.bigSister.background, color: familyColors.bigSister.primary }}>
-                          姉
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <p className="text-sm text-gray-500 mb-1">探究派お姉ちゃん</p>
-                        <div className="rounded-lg p-4" style={{ backgroundColor: familyColors.bigSister.background }}>
-                          <p>{movie.reviews.bigSister || 'レビューはまだありません'}</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* 妹のレビュー */}
-                    <div className="flex items-start gap-4">
-                      <Avatar className="w-10 h-10">
-                        <AvatarFallback style={{ backgroundColor: familyColors.littleSister.background, color: familyColors.littleSister.primary }}>
-                          妹
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <p className="text-sm text-gray-500 mb-1">エンターテイメント派妹</p>
-                        <div className="rounded-lg p-4" style={{ backgroundColor: familyColors.littleSister.background }}>
-                          <p>{movie.reviews.littleSister || 'レビューはまだありません'}</p>
-                        </div>
-                      </div>
-                    </div>
+              <h3 className="text-lg font-bold text-gray-700 mb-4" style={{ marginTop: "20px" }}>家族の感想</h3>
+              <div className="space-y-4">
+                {/* 父のレビュー */}
+                <div className="space-y-1">
+                  <p className="text-sm text-gray-500">論理派パパ</p>
+                  <div className="rounded-lg p-4" style={{ backgroundColor: familyColors.father.background }}>
+                    <p>{movie.reviews.father || 'レビューはまだありません'}</p>
                   </div>
-                </CardContent>
+                </div>
+
+                {/* 母のレビュー */}
+                <div className="space-y-1">
+                  <p className="text-sm text-gray-500">共感派ママ</p>
+                  <div className="rounded-lg p-4" style={{ backgroundColor: familyColors.mother.background }}>
+                    <p>{movie.reviews.mother || 'レビューはまだありません'}</p>
+                  </div>
+                </div>
+
+                {/* 姉のレビュー */}
+                <div className="space-y-1">
+                  <p className="text-sm text-gray-500">探究派お姉ちゃん</p>
+                  <div className="rounded-lg p-4" style={{ backgroundColor: familyColors.bigSister.background }}>
+                    <p>{movie.reviews.bigSister || 'レビューはまだありません'}</p>
+                  </div>
+                </div>
+
+                {/* 妹のレビュー */}
+                <div className="space-y-1">
+                  <p className="text-sm text-gray-500">エンターテイメント派妹</p>
+                  <div className="rounded-lg p-4" style={{ backgroundColor: familyColors.littleSister.background }}>
+                    <p>{movie.reviews.littleSister || 'レビューはまだありません'}</p>
+                  </div>
+                </div>
               </div>
             </CardContent>
+            <StructuredData movie={movie} />
           </Card>
           </div>
-          {/* レコメンデーション追加 */}
-          <RecommendedMovies
-            currentMovie={movie}
-            recommendedMovies={recommendedMovies}
-          />
-        </>
+          <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b mb-6">
+          <MovieNavigation 
+          currentMovie={movie}
+          prevMovie={prevMovie}
+          nextMovie={nextMovie}
+          currentSort={sort as string}
+          searchParams={searchParams}
+          currentIndex={currentIndex}
+          totalCount={totalCount}
+        />
+          </div>
+        {/* レコメンデーション追加 */}
+        <RecommendedMovies
+          currentMovie={movie}
+          recommendedMovies={recommendedMovies}
+        />
+      </>
     );
   } catch (error) {
     console.error('Error loading movie:', error);

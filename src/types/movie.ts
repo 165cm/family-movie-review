@@ -19,6 +19,7 @@ export interface Movie extends MovieBase {
   isBest5: boolean;
   monthDb: string;
   check: string;  // FamilyCheck型を削除し、stringに
+  duration?: number; // 上映時間（分）を追加
 }
 
 export interface MovieListItem extends MovieBase {

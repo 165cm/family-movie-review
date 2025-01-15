@@ -37,20 +37,21 @@ export interface MovieListItem extends MovieBase {
   status?: string;
 }
 
+export interface MovieBase {
+  id: string;
+  name: string;
+  slug: string;
+  synopsis: string;
+  totalScore: number;
+  familyScores: FamilyScores;
+  recommendedBy: string[];  // 追加：おすすめしている家族メンバー
+}
+
 export interface FamilyScores {
   father: number;
   mother: number;
   bigSister: number;
   littleSister: number;
-}
-
-interface MovieBase {
-  id: string;
-  name: string;
-  slug: string;
-  synopsis: string;
-  totalScore: number;  // 10点満点の生スコア
-  familyScores: FamilyScores;
 }
 
 export interface ContentWarning {

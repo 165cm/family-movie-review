@@ -17,6 +17,41 @@ export interface MovieThumbnailCardProps {
 export function MovieThumbnailCard({ movie, className = '' }: MovieThumbnailCardProps) {
   const { displayScore, starRating } = calculateTotalScore(movie.familyScores);
 
+  const getRecommendationBadges = () => {
+    const badges = [];
+    
+    if (movie.recommendedBy.includes('father')) {
+      badges.push(
+        <span key="father" className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+          父オシ！
+        </span>
+      );
+    }
+    if (movie.recommendedBy.includes('mother')) {
+      badges.push(
+        <span key="mother" className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">
+          母オシ！
+        </span>
+      );
+    }
+    if (movie.recommendedBy.includes('bigSister')) {
+      badges.push(
+        <span key="bigSister" className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+          姉オシ！
+        </span>
+      );
+    }
+    if (movie.recommendedBy.includes('littleSister')) {
+      badges.push(
+        <span key="littleSister" className="px-2 py-1 bg-pink-100 text-pink-800 text-xs rounded-full">
+          妹オシ！
+        </span>
+      );
+    }
+    
+    return badges;
+  };
+
   return (
     <Link href={`/movies/${movie.slug}`}>
       <div className={`group relative bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 ${className}`}>
@@ -59,22 +94,19 @@ export function MovieThumbnailCard({ movie, className = '' }: MovieThumbnailCard
                 {movie.check}
               </span>
             )}
-            {movie.isBest5 && (
-              <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
-                BEST5
-              </span>
-            )}
             <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
-              {movie.viewingPlatform}
+              {movie.genre}
             </span>
+            {/* 家族メンバーごとのおすすめバッジ */}
+            {getRecommendationBadges()}
           </div>
 
-          {/* 家族スコア */}
-          <div className="grid grid-cols-2 gap-2">
-            <FamilyScore label="父" score={movie.familyScores.father} />
-            <FamilyScore label="母" score={movie.familyScores.mother} />
-            <FamilyScore label="姉" score={movie.familyScores.bigSister} />
-            <FamilyScore label="妹" score={movie.familyScores.littleSister} />
+          {/* 家族スコア - コンパクト表示 */}
+          <div className="flex items-center gap-3 p-2 bg-gray-50 rounded">
+            <CompactFamilyScore label="父" score={movie.familyScores.father} />
+            <CompactFamilyScore label="母" score={movie.familyScores.mother} />
+            <CompactFamilyScore label="姉" score={movie.familyScores.bigSister} />
+            <CompactFamilyScore label="妹" score={movie.familyScores.littleSister} />
           </div>
         </div>
       </div>
@@ -82,15 +114,12 @@ export function MovieThumbnailCard({ movie, className = '' }: MovieThumbnailCard
   );
 }
 
-function FamilyScore({ label, score }: { label: string; score: number }) {
-  const { displayScore, starRating } = formatIndividualScore(score);
+function CompactFamilyScore({ label, score }: { label: string; score: number }) {
+  const { displayScore } = formatIndividualScore(score);
   return (
-    <div className="flex items-center justify-between p-2 rounded bg-gray-50">
-      <span className="font-medium">{label}</span>
-      <div className="flex items-center gap-2">
-        <span className="text-sm">{displayScore}</span>
-        <Rating score={starRating} size="sm" />
-      </div>
+    <div className="flex items-center gap-1">
+      <span className="text-sm font-medium text-gray-600">{label}</span>
+      <span className="text-sm font-bold">{displayScore}</span>
     </div>
   );
 }

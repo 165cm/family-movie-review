@@ -1,4 +1,6 @@
 // src/app/components/RecommendedMovies/index.tsx
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -12,15 +14,12 @@ interface RecommendedMoviesProps {
   recommendedMovies: MovieListItem[];
 }
 
-function FamilyScore({ label, score }: { label: string; score: number }) {
-  const { displayScore, starRating } = formatIndividualScore(score);
+function CompactFamilyScore({ label, score }: { label: string; score: number }) {
+  const { displayScore } = formatIndividualScore(score);
   return (
-    <div className="flex items-center justify-between p-2 rounded bg-gray-50">
-      <span className="font-medium">{label}</span>
-      <div className="flex items-center gap-2">
-        <span className="text-sm">{displayScore}</span>
-        <Rating score={starRating} size="sm" />
-      </div>
+    <div className="flex items-center gap-1">
+      <span className="text-sm font-medium text-gray-600">{label}</span>
+      <span className="text-sm font-bold">{displayScore}</span>
     </div>
   );
 }
@@ -28,7 +27,7 @@ function FamilyScore({ label, score }: { label: string; score: number }) {
 export function RecommendedMovies({ recommendedMovies }: RecommendedMoviesProps) {
   return (
     <div className="mt-12 max-w-5xl mx-auto px-4">
-      <h2 className="text-xl font-bold text-gray-800 mb-6">こんな映画も観てみませんか？</h2>
+      <h2 className="text-xl font-bold text-gray-800 mb-6">こちらの映画もあなたにオススメ！</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {recommendedMovies.map((movie) => {
           const { displayScore, starRating } = calculateTotalScore(movie.familyScores);
@@ -80,12 +79,12 @@ export function RecommendedMovies({ recommendedMovies }: RecommendedMoviesProps)
                       {movie.genre}
                     </span>
                   </div>
-                  {/* 家族スコア */}
-                  <div className="grid grid-cols-2 gap-2">
-                    <FamilyScore label="父" score={movie.familyScores.father} />
-                    <FamilyScore label="母" score={movie.familyScores.mother} />
-                    <FamilyScore label="姉" score={movie.familyScores.bigSister} />
-                    <FamilyScore label="妹" score={movie.familyScores.littleSister} />
+                  {/* 家族スコア - コンパクト表示 */}
+                  <div className="flex items-center gap-3 p-2 bg-gray-50 rounded">
+                    <CompactFamilyScore label="父" score={movie.familyScores.father} />
+                    <CompactFamilyScore label="母" score={movie.familyScores.mother} />
+                    <CompactFamilyScore label="姉" score={movie.familyScores.bigSister} />
+                    <CompactFamilyScore label="妹" score={movie.familyScores.littleSister} />
                   </div>
                 </div>
               </div>

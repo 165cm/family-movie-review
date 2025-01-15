@@ -94,11 +94,13 @@ interface NotionPageProperties extends Record<string, unknown> {
   ViewingPlatform: SelectPropertyItemObjectResponse;
   ViewingUrl: UrlPropertyItemObjectResponse;
   Status: StatusPropertyItemObjectResponse;
-  BEST5: MultiSelectPropertyItemObjectResponse;
   'DB-Month': SelectPropertyItemObjectResponse;
   Check: StatusPropertyItemObjectResponse;  // Checkプロパティを修正
   Genre: SelectPropertyItemObjectResponse;  // Genreプロパティを追加
   Duration: NumberPropertyItemObjectResponse;  // 上映時間を追加
+  BEST5: MultiSelectPropertyItemObjectResponse;
+
+  recommendedBy: MultiSelectPropertyItemObjectResponse;  // BEST5をrecommendedByに変更
 }
 
 // ヘルパー関数の安全な実装
@@ -168,9 +170,10 @@ export const extractMovieData = (page: PageObjectResponse): Movie => {
     viewingPlatform: getSelectContent(props.ViewingPlatform),
     viewingUrl: props.ViewingUrl?.url ?? null,
     status: props.Status?.status?.name ?? 'Draft',
-    isBest5: Boolean(props.BEST5?.multi_select?.length),
     monthDb: getSelectContent(props['DB-Month']),
     duration: getNumberContent(props.Duration),  // 上映時間を追加
+    recommendedBy: getMultiSelectContent(props.recommendedBy),
+    isBest5: Boolean(props.recommendedBy?.multi_select?.length),
   };
 };
 
@@ -309,8 +312,7 @@ export const extractMovieListItem = (page: PageObjectResponse): MovieListItem =>
     viewingPlatform: movie.viewingPlatform,
     viewingUrl: movie.viewingUrl,  // viewingUrlを追加
     genre: movie.genre,  // genreフィールドを追加
-    isBest5: movie.isBest5,
     check: movie.check,
-
-  };
+    isBest5: movie.isBest5,
+    recommendedBy: movie.recommendedBy,  };
 };

@@ -1,7 +1,7 @@
 // src/app/movies/page.tsx
 import { getMovies } from '@/app/lib/notion';
 import { MovieGridWithFilters } from '../components/MovieGridWithFilters';
-import { Movie } from '@/types/movie';
+import { Movie, MovieListItem } from '@/types/movie';
 import type { Metadata } from 'next';
 import { GenreTagCloud } from '../components/GenreTagCloud';
 
@@ -36,6 +36,7 @@ export default async function Page({
     const params = await searchParams;
     const movieListItems = await getMovies();
     const selectedGenre = typeof params.genre === 'string' ? params.genre : undefined;
+    const selectedMember = typeof params.recommendedBy === 'string' ? params.recommendedBy : undefined;
 
     if (!movieListItems || movieListItems.length === 0) {
       return (
@@ -49,7 +50,7 @@ export default async function Page({
     }
 
     // ジャンル集計
-    const genreCounts = movieListItems.reduce((acc, movie) => {
+    const genreCounts = movieListItems.reduce((acc, movie: MovieListItem) => {
       if (movie.genre) {
         acc[movie.genre] = (acc[movie.genre] || 0) + 1;
       }
@@ -60,10 +61,22 @@ export default async function Page({
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => b.count - a.count);
 
+    // メンバーごとのおすすめ数をカウント
+    const recommendationCounts = {
+      father: movieListItems.filter(movie => movie.recommendedBy.includes('father')).length,
+      mother: movieListItems.filter(movie => movie.recommendedBy.includes('mother')).length,
+      bigSister: movieListItems.filter(movie => movie.recommendedBy.includes('bigSister')).length,
+      littleSister: movieListItems.filter(movie => movie.recommendedBy.includes('littleSister')).length,
+    };
+
     // フィルタリング
-    const filteredMovies = selectedGenre
-      ? movieListItems.filter(movie => movie.genre === selectedGenre)
-      : movieListItems;
+    let filteredMovies = movieListItems;
+    if (selectedGenre) {
+      filteredMovies = filteredMovies.filter(movie => movie.genre === selectedGenre);
+    }
+    if (selectedMember) {
+      filteredMovies = filteredMovies.filter(movie => movie.recommendedBy.includes(selectedMember));
+    }
 
     // 全データを変換
     const allMovies: Movie[] = filteredMovies.map(item => ({
@@ -85,22 +98,23 @@ export default async function Page({
 
     return (
       <main className="min-h-screen bg-gray-50">
-      {/* ヒーローセクション追加 */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-12">
-        <div className="container mx-auto px-4">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">
-            家族で観た映画レビュー
-          </h1>
-          <p className="text-lg md:text-xl max-w-2xl mb-2">
-          毎週１回映画の日！小中学生の子どもたちと一緒に観た映画をご紹介
-          </p>
+        {/* ヒーローセクション追加 */}
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-12">
+          <div className="container mx-auto px-4">
+            <h1 className="text-3xl md:text-4xl font-bold mb-4">
+              家族で観た映画レビュー
+            </h1>
+            <p className="text-lg md:text-xl max-w-2xl mb-2">
+              毎週１回映画の日！小中学生の子どもたちと一緒に観た映画をご紹介
+            </p>
+          </div>
         </div>
-      </div>
         <div className="container mx-auto px-4 py-8">          
           <GenreTagCloud 
             genres={genres}
             selectedGenre={selectedGenre}
             totalCount={movieListItems.length}
+            recommendationCounts={recommendationCounts}
           />
           
           <MovieGridWithFilters movies={allMovies} />

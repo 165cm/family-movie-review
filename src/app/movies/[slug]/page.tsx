@@ -222,6 +222,20 @@ export default async function Page(props: PageProps) {
             </div>
           </div>
 
+          {/* YouTube埋め込み */}
+          {movie.viewingUrl && (
+            <Card className="mb-8 shadow-sm overflow-hidden">
+              <div className="aspect-video">
+                <iframe
+                  className="w-full h-full"
+                  src={`https://www.youtube.com/embed/${getYouTubeId(movie.viewingUrl)}`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            </Card>
+          )}
+          
           {/* メインコンテンツ */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             {/* 左: 家族視聴とあらすじ */}
@@ -235,11 +249,11 @@ export default async function Page(props: PageProps) {
                     flex flex-col items-center justify-center 
                     w-24 h-24 rounded-full shadow-md 
                     ${
-                      movie.check === 'OK' 
+                      movie.check === '家族OK' 
                         ? 'bg-emerald-500' 
                         : movie.check === '気まずい'
                         ? 'bg-yellow-500'
-                        : movie.check === 'NG'
+                        : movie.check === '家族NG'
                         ? 'bg-red-500'
                         : 'bg-gray-500'
                     }
@@ -306,20 +320,6 @@ export default async function Page(props: PageProps) {
               </CardContent>
             </Card>
           </div>
-
-          {/* YouTube埋め込み */}
-          {movie.viewingUrl && (
-            <Card className="mb-8 shadow-sm overflow-hidden">
-              <div className="aspect-video">
-                <iframe
-                  className="w-full h-full"
-                  src={`https://www.youtube.com/embed/${getYouTubeId(movie.viewingUrl)}`}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
-            </Card>
-          )}
 
           {/* レビュー（タブなしバージョン） */}
           <Card className="shadow-sm">

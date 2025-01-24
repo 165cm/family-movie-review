@@ -1,5 +1,4 @@
 // src/app/layout.tsx
-import { Analytics } from '@vercel/analytics/react';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { ToastProvider } from '../app/components/ui/toast';
@@ -19,13 +18,6 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
   },
 };
 
@@ -42,7 +34,6 @@ export default function RootLayout({
       <body className={`${inter.className} h-full bg-gray-50`}>
         <ToastProvider>
           {children}
-          <Analytics />
         </ToastProvider>
       </body>
     </html>

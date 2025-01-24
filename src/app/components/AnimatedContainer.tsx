@@ -1,7 +1,7 @@
 // src/components/AnimatedContainer.tsx
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { fadeInVariants } from '@/app/lib/utils/fade-in';
+import { fadeInVariants } from '@/app/lib/utils';
 
 interface AnimatedContainerProps {
   children: React.ReactNode;

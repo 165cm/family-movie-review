@@ -1,4 +1,5 @@
 // src/app/movies/[slug]/page.tsx
+export const dynamic = 'force-dynamic'
 import { getMovieBySlug, getMovies } from '@/app/lib/notion';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';  // Metadataのインポートを追加
@@ -14,6 +15,7 @@ import { BreadcrumbNav } from '@/app/components/BreadcrumbNav';
 import { getAdjacentMovies } from '@/app/lib/utils/navigation';
 import { SortOption } from '@/app/lib/filters/types';
 import StructuredData from '@/app/components/StructuredData';
+import { FamilyMember } from '@/types/family';
 
 const FAMILY_COLORS = {
   father: '#4CAF50',    // ソフトグリーン
@@ -141,44 +143,69 @@ export async function generateStaticParams() {
   }
 }
 
-export default async function Page(props: PageProps) {
+export default async function Page({ params, searchParams }: PageProps) {
   try {
-    const allMovies = await getMovies();
-    const { slug } = await props.params;
-    const searchParams = await props.searchParams;
-    const { sort = 'totalScore', genre } = searchParams;
-    
+    const resolvedParams = await params;
+    const resolvedSearchParams = await searchParams;
+    const { slug } = resolvedParams;
     const movie = await getMovieBySlug(slug);
+    
     if (!movie) {
       notFound();
     }
 
+    const allMovies = await getMovies();
+    const sortOption = (resolvedSearchParams.sort as SortOption) || 'totalScore';
+    
+    // フィルタリング情報を取得
+    const filters = {
+      genre: typeof resolvedSearchParams.genre === 'string' ? resolvedSearchParams.genre : undefined,
+      recommendedBy: typeof resolvedSearchParams.recommendedBy === 'string' 
+        ? resolvedSearchParams.recommendedBy as FamilyMember 
+        : undefined
+    };
+
+    // 隣接する映画を取得
     const { 
       prevMovie, 
-      nextMovie, 
-      currentIndex, 
-      totalCount 
-    } = getAdjacentMovies(
-      movie, 
-      allMovies, 
-      sort as SortOption,
-      genre as string
-    );
+      nextMovie 
+    } = getAdjacentMovies(movie, allMovies, sortOption, filters);
 
-    // レコメンド映画を取得
-    const recommendedMovies = getRecommendedMovies(movie, allMovies);
+    // 現在の映画のインデックスと合計数を計算
+    const currentIndex = allMovies.findIndex(m => m.slug === movie.slug) + 1;
+    const totalCount = allMovies.length;
+
+    // おすすめ映画を取得（同じジャンルやレコメンドの映画を優先）
+    const recommendedMovies = getRecommendedMovies(
+      movie,
+      allMovies.filter(m => m.slug !== movie.slug),
+      4
+    );
 
     // スコアの計算を行う
     const { displayScore, starRating } = calculateTotalScore(movie.familyScores);
 
     return (
-      <>
+      <div>
+        <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b mb-6">
+          <MovieNavigation 
+            prevMovie={prevMovie}
+            nextMovie={nextMovie}
+            currentSort={sortOption}
+            currentIndex={currentIndex}
+            totalCount={totalCount}
+            filterInfo={{
+              genre: resolvedSearchParams.genre as string | undefined,
+              recommendedBy: resolvedSearchParams.recommendedBy as FamilyMember | undefined
+            }}
+          />
+        </div>
         <div className="max-w-5xl mx-auto px-4 py-8">
           {/* パンくずナビとナビゲーション */}
-            <BreadcrumbNav 
-              genre={movie.genre} 
-              movieName={movie.name}
-            />
+          <BreadcrumbNav 
+            genre={movie.genre} 
+            movieName={movie.name}
+          />
 
           <div className="flex flex-wrap gap-2 mb-4">
             {/* 既存のメタ情報 */}
@@ -361,24 +388,13 @@ export default async function Page(props: PageProps) {
             </CardContent>
             <StructuredData movie={movie} />
           </Card>
-          </div>
-          <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b mb-6">
-          <MovieNavigation 
-          currentMovie={movie}
-          prevMovie={prevMovie}
-          nextMovie={nextMovie}
-          currentSort={sort as string}
-          searchParams={searchParams}
-          currentIndex={currentIndex}
-          totalCount={totalCount}
-        />
-          </div>
+        </div>
         {/* レコメンデーション追加 */}
         <RecommendedMovies
           currentMovie={movie}
           recommendedMovies={recommendedMovies}
         />
-      </>
+      </div>
     );
   } catch (error) {
     console.error('Error loading movie:', error);

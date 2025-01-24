@@ -70,7 +70,7 @@ export const GenreTagCloud: React.FC<GenreTagCloudProps> = ({
 
   // 型安全な配列の作成
   const allTags: GenreTag[] = [
-    { name: null, count: totalCount, label: 'すべて表示', type: 'genre' },
+    { name: null, count: totalCount, label: 'すべて', type: 'genre' },
     ...genres.map(genre => ({
       name: genre.name,
       count: genre.count,
@@ -114,7 +114,7 @@ export const GenreTagCloud: React.FC<GenreTagCloudProps> = ({
         全{totalCount}件の映画
       </div>
       
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1.5">
         {allTags.map((tag) => {
           const isSelected = 
             (tag.type === 'genre' && tag.name === selectedGenre && !selectedMember) || 
@@ -132,7 +132,7 @@ export const GenreTagCloud: React.FC<GenreTagCloudProps> = ({
                 member: tag.member 
               })}`}
               className={`
-                px-4 py-2 rounded-full text-sm font-medium
+                px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap
                 transition-colors duration-200
                 ${isSelected
                   ? 'bg-blue-600 text-white hover:bg-blue-700'
@@ -141,7 +141,7 @@ export const GenreTagCloud: React.FC<GenreTagCloudProps> = ({
               `}
             >
               {displayText}
-              <span className="ml-2 text-xs opacity-70">({tag.count})</span>
+              <span className="ml-1 text-xs opacity-70">({tag.count})</span>
             </Link>
           );
         })}

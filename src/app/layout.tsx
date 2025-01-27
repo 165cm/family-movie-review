@@ -9,15 +9,33 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: '家族で観る映画レビュー',
   description: '家族みんなの視点で映画をレビュー',
+  // Google Search Console検証用メタタグ
   verification: {
-    google: 'あなたのGoogle Search Console確認用メタタグ',
+    google: 'qfkItQ8yqFGUHaV4WJ_ZSd_4E_aaIMK9XQNv3iqaFGE',
   },
+  // 正規URLの設定
   alternates: {
     canonical: process.env.NEXT_PUBLIC_BASE_URL,
   },
+  // robots設定
   robots: {
     index: true,
     follow: true,
+  },
+  // OpenGraph設定
+  openGraph: {
+    title: '家族で観る映画レビュー',
+    description: '家族みんなの視点で映画をレビュー',
+    url: process.env.NEXT_PUBLIC_BASE_URL,
+    siteName: '家族で観る映画レビュー',
+    locale: 'ja_JP',
+    type: 'website',
+  },
+  // Twitter Card設定
+  twitter: {
+    card: 'summary_large_image',
+    title: '家族で観る映画レビュー',
+    description: '家族みんなの視点で映画をレビュー',
   },
 };
 
@@ -28,9 +46,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja" className="h-full">
-      <head>
-        <meta name="google-site-verification" content="qfkItQ8yqFGUHaV4WJ_ZSd_4E_aaIMK9XQNv3iqaFGE" />
-      </head>
       <body className={`${inter.className} h-full bg-gray-50`}>
         <ToastProvider>
           {children}

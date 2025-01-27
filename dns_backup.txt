@@ -1,0 +1,26 @@
+
+; <<>> DiG 9.10.6 <<>> choc-coin.com ANY
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 31308
+;; flags: qr rd ra; QUERY: 1, ANSWER: 7, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 512
+;; QUESTION SECTION:
+;choc-coin.com.			IN	ANY
+
+;; ANSWER SECTION:
+choc-coin.com.		3600	IN	SOA	ns-a1.conoha.io. postmaster.choc-coin.com. 1736154586 3600 600 86400 3600
+choc-coin.com.		3600	IN	NS	ns-a2.conoha.io.
+choc-coin.com.		3600	IN	NS	ns-a3.conoha.io.
+choc-coin.com.		3600	IN	NS	ns-a1.conoha.io.
+choc-coin.com.		3600	IN	A	118.27.99.151
+choc-coin.com.		3600	IN	MX	10 mail42.conoha.ne.jp.
+choc-coin.com.		3600	IN	TXT	"v=spf1 include:_spf.conoha.ne.jp ~all"
+
+;; Query time: 89 msec
+;; SERVER: 8.8.8.8#53(8.8.8.8)
+;; WHEN: Fri Jan 24 22:00:40 +08 2025
+;; MSG SIZE  rcvd: 259
+

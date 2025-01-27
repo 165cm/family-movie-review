@@ -110,10 +110,6 @@ export const GenreTagCloud: React.FC<GenreTagCloudProps> = ({
 
   return (
     <div className="mb-6">
-      <div className="text-sm text-gray-600 mb-3">
-        全{totalCount}件の映画
-      </div>
-      
       <div className="flex flex-wrap gap-1.5">
         {allTags.map((tag) => {
           const isSelected = 

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: '家族みんなの視点で映画をレビュー',
   // Google Search Console検証用メタタグ
   verification: {
-    google: 'qfkItQ8yqFGUHaV4WJ_ZSd_4E_aaIMK9XQNv3iqaFGE',
+    google: 'zand30Xj_kS4zbsIOw-yZ_zZCyKK2dwW8r3D_lCmz-Y',
   },
   // 正規URLの設定
   alternates: {

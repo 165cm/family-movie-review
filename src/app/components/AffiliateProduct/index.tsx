@@ -1,7 +1,7 @@
 // src/app/components/AffiliateProduct/index.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AmazonProduct } from '@/types/amazon';
 import { Card, CardContent } from '@/app/components/ui/card';
 import { familyColors } from '@/app/lib/theme';
@@ -11,9 +11,12 @@ interface Props {
 }
 
 export function AffiliateProduct({ product }: Props) {
-  const [variant] = useState<'a' | 'b'>(
-    Math.random() < 0.5 ? 'a' : 'b'
-  );
+  // variantの初期化をuseEffectで行う
+  const [variant, setVariant] = useState<'a' | 'b'>('a');
+  
+  useEffect(() => {
+    setVariant(Math.random() < 0.5 ? 'a' : 'b');
+  }, []);
 
   const copy = product.copies[variant];
 
@@ -35,9 +38,53 @@ export function AffiliateProduct({ product }: Props) {
     <div className="mt-12 max-w-5xl mx-auto px-4">
       <Card className="shadow-sm">
         <CardContent className="p-6">
-          <h3 className="text-lg font-bold text-gray-700 mb-4" style={{ marginTop: "20px" }}>
-          【PR】より多くの映画を観て、正直にレビューするための資金調達コーナーです
+          {/* PRヘッダー */}
+          <h3 className="text-sm font-midium text-gray-700 mb-2" style={{ marginTop: "10px" }}>
+            【PR】より多くの映画を観て、正直にレビューするための資金調達コーナーです
           </h3>
+
+          {/* 商品情報 */}
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 mb-8">
+            <h4 className="text-lg font-bold text-gray-800 mb-2">
+              {copy.heading}
+            </h4>
+            <p className="text-sm text-gray-600 mb-4">
+              {copy.subheading}
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="text-base font-medium text-gray-900">
+                ¥{product.price.toLocaleString()}
+              </span>
+              
+              <a
+                href={product.affiliateUrl}
+                onClick={handleClick}
+                target="_blank"
+                rel="nofollow noopener"
+                className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors"
+              >
+                詳しく見てみる
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7-7 7" />
+                </svg>
+              </a>
+            </div>
+            <div className="text-xs text-gray-500 mt-2 text-right">
+              ※価格は変更される場合があります
+            </div>
+          </div>
+
+          {/* セパレーター */}
+          <div className="relative py-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200"></div>
+            </div>
+            <div className="relative flex justify-center">
+              <span className="bg-white px-4 text-sm text-gray-500">家族の感想</span>
+            </div>
+          </div>
+
+          {/* レビュー */}
           <div className="space-y-4">
             {/* 姉のレビュー */}
             <div className="space-y-1">
@@ -68,37 +115,6 @@ export function AffiliateProduct({ product }: Props) {
               <p className="text-sm text-gray-500">共感派ママ</p>
               <div className="rounded-lg p-4" style={{ backgroundColor: familyColors.mother.background }}>
                 <p>{product.reviews.mother}</p>
-              </div>
-            </div>
-
-            {/* 商品情報 */}
-            <div className="mt-6 border-t pt-4">
-              <h4 className="text-base font-medium text-gray-800 mb-2">
-                {copy.heading}
-              </h4>
-              <p className="text-sm text-gray-600 mb-4">
-                {copy.subheading}
-              </p>
-              <div className="flex items-center justify-between">
-                    <span className="text-base font-medium text-gray-900">
-                      ¥{product.price.toLocaleString()}
-                    </span>
-                    <a
-                      href={product.affiliateUrl}
-                      onClick={handleClick}
-                      target="_blank"
-                      rel="nofollow noopener"
-                      className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors"
-                    >
-                      詳しく見てみる
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7-7 7" />
-                      </svg>
-                    </a>
-                  </div>
-              <div className="text-xs text-gray-500 mt-2 text-right">
-                <span className="mr-2">PR</span>
-                ※価格は変更される場合があります
               </div>
             </div>
           </div>

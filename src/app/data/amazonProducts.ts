@@ -24,5 +24,51 @@ export const amazonProducts: Record<string, AmazonProduct> = {
         mother: "家族で映画を見る時間が、もっと特別なものになりそう(*^^*)"
 },
     genre: 'ホームシアター'
-  }
+},
+'popcorn-maker': {
+  asin: 'B0C439C1T9',
+  title: 'créer ポップコーンメーカー',
+  price: 1980,
+  affiliateUrl: 'https://amzn.to/3EaDlhf',
+  copies: {
+    a: {
+      heading: "映画と一緒に楽しむ！電子レンジで簡単手作りポップコーン",
+      subheading: "9種のレシピ付き！食洗機対応で後片付けも簡単、毎日の映画タイムがもっと楽しくなる"
+    },
+    b: {
+      heading: "映画鑑賞がもっと楽しくなる！手作りポップコーンメーカー",
+      subheading: "レンジでチンするだけの簡単調理。お好みのフレーバーで特別な映画タイムを"
+    }
+  },
+  reviews: {
+    bigSister: "クラスの友達と映画会するとき、これで作ったポップコーンめっちゃウケた！",
+    littleSister: "自分で作れるの超楽しい！キャラメル味作ったら、お父さんにめっちゃ褒められた～！",
+    father: "シリコン製で収納も場所を取らず、レシピも豊富で子供たちが自主的に作れるのが◎",
+    mother: "子どもたちが自分で作れて、片付けも簡単なのが嬉しい。映画の時間がより特別になりました"
+  },
+  genre: 'キッチン家電'
+},
+'fire-stick': {
+  asin: 'B09BS1ZB3F',
+  title: 'Amazon Fire TV Stick HD',
+  price: 6980,
+  affiliateUrl: 'https://amzn.to/3Cs2yTS',
+  copies: {
+    a: {
+      heading: "あらゆる動画配信サービスを、もっと快適に！",
+      subheading: "Alexa対応リモコンで音声検索も簡単。Prime Video、Netflix、YouTube等を大画面で"
+    },
+    b: {
+      heading: "テレビでプライムビデオやNetflixを快適視聴！",
+      subheading: "60万作品以上が見放題。Alexa対応リモコンで見たい作品をすぐに検索"
+    }
+  },
+  reviews: {
+    bigSister: "数学の動画とか、勉強にも使えるし、アニメも見やすい！声で検索できるの超便利！",
+    littleSister: "リモコンに話しかけるの楽しい！ディズニーの映画もYouTubeも見れて最高♪",
+    father: "各種動画配信サービスを一元管理できて便利。Alexaとの連携で話しかけるだけ👍",
+    mother: "操作が簡単で、私でも迷わず使えます。子供の教育番組も豊富で助かります(*^^*)"
+  },
+  genre: 'デジタル機器'
+}
 };

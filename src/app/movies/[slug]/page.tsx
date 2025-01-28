@@ -17,7 +17,7 @@ import { AffiliateProduct } from '@/app/components/AffiliateProduct';
 import { SortOption } from '@/app/lib/filters/types';
 import StructuredData from '@/app/components/StructuredData';
 import { FamilyMember } from '@/types/family';
-import { amazonProducts } from '@/app/data/amazonProducts';
+import { getRandomProduct } from '@/utils/amazonProducts';
 
 const FAMILY_COLORS = {
   father: '#4CAF50',    // ソフトグリーン
@@ -186,6 +186,9 @@ export default async function Page({ params, searchParams }: PageProps) {
 
     // スコアの計算を行う
     const { displayScore, starRating } = calculateTotalScore(movie.familyScores);
+
+    // ランダムに商品を取得
+    const randomProduct = getRandomProduct();
 
     return (
       <div>
@@ -393,7 +396,7 @@ export default async function Page({ params, searchParams }: PageProps) {
         </div>
 
         {/* アフィリエイト商品（レコメンデーションの前に配置） */}
-        <AffiliateProduct product={amazonProducts['projector']} />
+        {randomProduct && <AffiliateProduct product={randomProduct} />}
         
         {/* レコメンデーション追加 */}
         <RecommendedMovies

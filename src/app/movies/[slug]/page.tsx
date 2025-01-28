@@ -13,9 +13,11 @@ import { getRecommendedMovies } from '@/app/lib/utils/recommendation';
 import { MovieNavigation } from '@/app/components/MovieNavigation';
 import { BreadcrumbNav } from '@/app/components/BreadcrumbNav';
 import { getAdjacentMovies } from '@/app/lib/utils/navigation';
+import { AffiliateProduct } from '@/app/components/AffiliateProduct';
 import { SortOption } from '@/app/lib/filters/types';
 import StructuredData from '@/app/components/StructuredData';
 import { FamilyMember } from '@/types/family';
+import { amazonProducts } from '@/app/data/amazonProducts';
 
 const FAMILY_COLORS = {
   father: '#4CAF50',    // ソフトグリーン
@@ -348,7 +350,7 @@ export default async function Page({ params, searchParams }: PageProps) {
             </Card>
           </div>
 
-          {/* レビュー（タブなしバージョン） */}
+          {/* レビュー */}
           <Card className="shadow-sm">
             <CardContent className="p-6">
               <h3 className="text-lg font-bold text-gray-700 mb-4" style={{ marginTop: "20px" }}>家族の感想</h3>
@@ -389,6 +391,10 @@ export default async function Page({ params, searchParams }: PageProps) {
             <StructuredData movie={movie} />
           </Card>
         </div>
+
+        {/* アフィリエイト商品（レコメンデーションの前に配置） */}
+        <AffiliateProduct product={amazonProducts['projector']} />
+        
         {/* レコメンデーション追加 */}
         <RecommendedMovies
           currentMovie={movie}

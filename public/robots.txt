@@ -6,7 +6,7 @@ Disallow: /_next/*
 Disallow: /static/*
 
 # Host
-Host: https://family-movie-review.vercel.app
+Host: https://movie.choc-coin.com
 
 # Sitemaps
-Sitemap: https://family-movie-review.vercel.app/sitemap.xml
+Sitemap: https://movie.choc-coin.com/sitemap.xml

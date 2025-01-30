@@ -1,4 +1,4 @@
-// src/components/ui/alert/index.tsx
+// src/app/components/ui/alert/index.tsx
 import React from 'react';
 
 interface AlertProps {
@@ -15,7 +15,7 @@ export function Alert({
   const baseStyles = 'relative w-full rounded-lg border p-4';
   const variantStyles = {
     default: 'bg-background text-foreground',
-    destructive: 'border-destructive/50 text-destructive'
+    destructive: 'border-destructive/50 text-destructive dark:border-destructive bg-destructive/10'
   };
 
   return (
@@ -28,7 +28,8 @@ export function Alert({
   );
 }
 
-export function AlertTitle({ 
+// AlertDescriptionコンポーネントを追加
+export function AlertDescription({ 
   children, 
   className = '' 
 }: {
@@ -36,8 +37,8 @@ export function AlertTitle({
   className?: string;
 }) {
   return (
-    <h5 className={`mb-1 font-medium leading-none tracking-tight ${className}`}>
+    <div className={`text-sm [&_p]:leading-relaxed ${className}`}>
       {children}
-    </h5>
+    </div>
   );
 }

@@ -1,26 +1,32 @@
 // src/types/amazon.ts
-export interface FamilyReview {
+export interface AmazonProduct {
+  asin: string;
+  title: string;
+  price: {
+    amount: number;
+    currency: string;
+  };
+  imageUrls: {
+    small: string;
+    medium: string;
+    large: string;
+  };
+  detailPageUrl: string;
+  reviews: {
     father: string;
     mother: string;
     bigSister: string;
     littleSister: string;
-  }
-  
-  export interface AmazonProduct {
-    asin: string;
-    title: string;
-    price: number;
-    affiliateUrl: string;
-    copies: {
-      a: {
-        heading: string;
-        subheading: string;
-      };
-      b: {
-        heading: string;
-        subheading: string;
-      };
+  };
+  copies: {
+    a: {
+      heading: string;
+      subheading: string;
     };
-    genre: string;
-    reviews: FamilyReview;
-  }
+    b: {
+      heading: string;
+      subheading: string;
+    };
+  };
+  genre: string;
+}

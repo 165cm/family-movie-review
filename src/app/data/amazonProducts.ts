@@ -5,8 +5,16 @@ export const amazonProducts: Record<string, AmazonProduct> = {
   'projector': {
     asin: 'B0DG1KVLYY',
     title: 'Billos プロジェクター BSK01',
-    price: 12999,
-    affiliateUrl: 'https://amzn.to/40Alwj1',
+    price: {
+      amount: 12999,
+      currency: 'JPY'
+    },
+    imageUrls: {
+      small: '/images/products/projector-small.jpg',
+      medium: '/images/products/projector-medium.jpg',
+      large: '/images/products/projector-large.jpg'
+    },
+    detailPageUrl: 'https://amzn.to/40Alwj1',
     copies: {
       a: {
         heading: "映画の感動を大画面で！超軽量513gのミニプロジェクター",
@@ -28,8 +36,16 @@ export const amazonProducts: Record<string, AmazonProduct> = {
 'popcorn-maker': {
   asin: 'B0C439C1T9',
   title: 'créer ポップコーンメーカー',
-  price: 1980,
-  affiliateUrl: 'https://amzn.to/3EaDlhf',
+  price: {
+    amount: 1980,
+    currency: 'JPY'
+  },
+  imageUrls: {
+    small: '/images/products/popcorn-small.jpg',
+    medium: '/images/products/popcorn-medium.jpg',
+    large: '/images/products/popcorn-large.jpg'
+  },
+  detailPageUrl: 'https://amzn.to/3EaDlhf',
   copies: {
     a: {
       heading: "映画と一緒に楽しむ！電子レンジで簡単手作りポップコーン",
@@ -51,8 +67,16 @@ export const amazonProducts: Record<string, AmazonProduct> = {
 'fire-stick': {
   asin: 'B09BS1ZB3F',
   title: 'Amazon Fire TV Stick HD',
-  price: 6980,
-  affiliateUrl: 'https://amzn.to/3Cs2yTS',
+  price: {
+    amount: 6980,
+    currency: 'JPY'
+  },
+  imageUrls: {
+    small: '/images/products/projector-small.jpg',
+    medium: '/images/products/projector-medium.jpg',
+    large: '/images/products/projector-large.jpg'
+  },
+  detailPageUrl: 'https://amzn.to/3Cs2yTS',
   copies: {
     a: {
       heading: "あらゆる動画配信サービスを、もっと快適に！",

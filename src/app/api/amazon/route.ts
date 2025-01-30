@@ -1,6 +1,6 @@
 // src/app/api/amazon/route.ts
 import { NextResponse } from 'next/server';
-import { AmazonApiClient } from '@/app/lib/amazon';
+import { AmazonApiClient } from '@/utils/amazon';
 import { ApiError } from '@/types/paapi';
 import { rateLimit } from '@/app/lib/rateLimit';
 

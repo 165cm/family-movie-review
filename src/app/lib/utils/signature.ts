@@ -1,24 +1,24 @@
+// src/app/lib/utils/signature.ts
 import { createHash, createHmac } from "crypto";
 
-// src/app/lib/utils/signature.ts
-interface SignParams {
+export interface SignParams {
   secretKey: string;
   region: string;
-  service: string;
-  path: string;
-  target: string;
   timestamp: string;
   payload: string;
+  service?: string;
+  path?: string;
+  target?: string;
 }
 
 export function sign({
   secretKey,
   region,
-  service,
-  path,
-  target,
   timestamp,
-  payload
+  payload,
+  service = 'paapi5',
+  path = 'GetItems',
+  target = `com.amazon.paapi5.v1.ProductAdvertisingAPIv1.GetItems`
 }: SignParams): string {
   const dateStamp = timestamp.split('T')[0].replace(/-/g, '');
   const canonicalUri = `/paapi5/${path}`;
@@ -39,8 +39,6 @@ export function sign({
     'content-type;host;x-amz-date;x-amz-target',
     createHash('sha256').update(payload).digest('hex')
   ].join('\n');
-
-  console.log('Canonical Request:', canonicalRequest);
 
   const credentialScope = `${dateStamp}/${region}/${service}/aws4_request`;
   const stringToSign = [

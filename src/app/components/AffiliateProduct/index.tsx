@@ -51,13 +51,14 @@ export function AffiliateProduct({ product }: Props) {
   };
 
   return (
-    <Card className="shadow-sm hover:shadow-md transition-shadow duration-200 mt-12 mb-8">
-      <CardContent className="p-6">
+    <div className="max-w-5xl mx-auto px-4">
+      <Card className="shadow-sm hover:shadow-md transition-shadow duration-200 mt-12 mb-8">
+        <CardContent className="p-6">
         {/* PRヘッダー */}
         <div className="flex items-center gap-2 mb-2">
           <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded" style={{ marginTop: "10px" }}>PR</span>
           <p className="text-sm text-gray-600" style={{ marginTop: "10px" }}>
-            より多くの映画を観て、正直にレビューするための資金調達コーナーです
+            正直に映画レビューするための資金調達コーナー
           </p>
         </div>
 
@@ -77,84 +78,85 @@ export function AffiliateProduct({ product }: Props) {
               />
             </div>
 
-            {/* 商品詳細 */}
-            <div className="flex-1">
-              <div className="mb-4">
-                {/* キャッチコピー */}
-                <p className="text-lg font-bold text-gray-800 mb-2">
-                  {copy.heading}
-                </p>
-                {/* クリッカブルな商品名 */}
-                <a 
-                  href={product.detailPageUrl}
-                  onClick={handleClick}
-                  target="_blank"
-                  rel="nofollow noopener"
-                  className="group inline-block mb-2"
-                >
-                  <span className="text-xl font-bold text-gray-900 group-hover:text-gray-600 transition-colors border-b-2 border-gray-200 group-hover:border-gray-400">
-                    {product.title}
-                  </span>
-                  <svg 
-                    className="inline-block w-4 h-4 ml-1 text-gray-400 group-hover:text-gray-600 translate-y-[-2px]" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                </a>
-                <p className="text-sm text-gray-600">
-                  {copy.subheading}
-                </p>
-              </div>
-
-              {/* アクションエリア */}
-              <div className="flex items-center gap-4">
-                <a 
-                  href={product.detailPageUrl}
-                  onClick={handleClick}
-                  target="_blank"
-                  rel="nofollow noopener"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full font-medium hover:bg-blue-700 transform hover:scale-105 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                >
-                  Amazonで見る
-                </a>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">
-                    ¥{product.price.amount.toLocaleString()}
+              {/* 商品詳細 */}
+              <div className="flex-1">
+                <div className="mb-4">
+                  {/* キャッチコピー */}
+                  <p className="text-sm text-gray-800 mb-2">
+                    {copy.heading}
                   </p>
-                  <p className="text-xs text-gray-500">※価格は変更される場合があります</p>
+                  {/* クリッカブルな商品名 */}
+                  <a 
+                    href={product.detailPageUrl}
+                    onClick={handleClick}
+                    target="_blank"
+                    rel="nofollow noopener"
+                    className="group inline-block mb-2"
+                  >
+                    <span className="text-xl font-bold text-gray-900 group-hover:text-gray-600 transition-colors border-b-2 border-gray-200 group-hover:border-gray-400">
+                      {product.title}
+                    </span>
+                    <svg 
+                      className="inline-block w-4 h-4 ml-1 text-gray-400 group-hover:text-gray-600 translate-y-[-2px]" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                  <p className="text-sm text-gray-600">
+                    {copy.subheading}
+                  </p>
+                </div>
+
+                {/* アクションエリア */}
+                <div className="flex items-center gap-4">
+                  <a 
+                    href={product.detailPageUrl}
+                    onClick={handleClick}
+                    target="_blank"
+                    rel="nofollow noopener"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full font-medium hover:bg-blue-700 transform hover:scale-105 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  >
+                    Amazonで見る
+                  </a>
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900">
+                      ¥{product.price.amount.toLocaleString()}
+                    </p>
+                    <p className="text-xs text-gray-500">※価格は変更される場合があります</p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* レビューセクション */}
-        <div className="relative mb-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-200"></div>
-          </div>
-          <div className="relative flex justify-center">
-            <span className="px-4 bg-white text-sm font-medium text-gray-500">家族の感想</span>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          {Object.entries(roleColorMap).map(([role, colorKey]) => (
-            <div key={role} className="space-y-1">
-              <p className="text-sm text-gray-500">{role}</p>
-              <div 
-                className="rounded-lg p-4" 
-                style={{ backgroundColor: familyColors[colorKey].background }}
-              >
-                <p>{product.reviews[colorKey]}</p>
-              </div>
+          {/* レビューセクション */}
+          <div className="relative mb-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200"></div>
             </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+            <div className="relative flex justify-center">
+              <span className="px-4 bg-white text-sm font-medium text-gray-500">家族の感想</span>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {Object.entries(roleColorMap).map(([role, colorKey]) => (
+              <div key={role} className="space-y-1">
+                <p className="text-sm text-gray-500">{role}</p>
+                <div 
+                  className="rounded-lg p-4" 
+                  style={{ backgroundColor: familyColors[colorKey].background }}
+                >
+                  <p>{product.reviews[colorKey]}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

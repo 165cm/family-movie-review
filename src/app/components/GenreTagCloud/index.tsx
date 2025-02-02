@@ -1,11 +1,11 @@
 // src/app/components/GenreTagCloud/index.tsx
 'use client';
 
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 
-// タグの型を定義
+// 型定義の修正
 type GenreTag = {
   name: string | null;
   count: number;
@@ -27,49 +27,56 @@ interface GenreTagCloudProps {
     bigSister: number;
     littleSister: number;
   };
+  onFilterChange?: (params: { type: 'genre' | 'recommendation', value: string | null, member?: string }) => void;
 }
 
 export const GenreTagCloud: React.FC<GenreTagCloudProps> = ({
   genres,
   selectedGenre,
   totalCount,
-  recommendationCounts
+  recommendationCounts,
+  onFilterChange
 }) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const createQueryString = (params: { name: string | null; type: 'genre' | 'recommendation'; member?: string }) => {
+  // URLパラメータ生成ロジックをメモ化
+  const createQueryString = useCallback((params: { 
+    name: string | null; 
+    type: 'genre' | 'recommendation'; 
+    member?: string 
+  }) => {
     const current = new URLSearchParams();
     
     // 既存のパラメータをコピー
-    searchParams?.forEach((value, key) => {
-      current.append(key, value);
-    });
+    if (searchParams) {
+      searchParams.forEach((value, key) => {
+        current.append(key, value);
+      });
+    }
     
     if (params.type === 'genre') {
+      current.delete('recommendedBy'); // おすすめフィルターをクリア
       if (params.name === null) {
         current.delete('genre');
       } else {
         current.set('genre', params.name);
       }
-      // ジャンル選択時はおすすめフィルターをクリア
-      current.delete('recommendedBy');
     } else if (params.type === 'recommendation') {
+      current.delete('genre'); // ジャンルフィルターをクリア
       if (params.name === null) {
         current.delete('recommendedBy');
       } else {
         current.set('recommendedBy', params.member!);
       }
-      // おすすめ選択時はジャンルフィルターをクリア
-      current.delete('genre');
     }
     
-    const search = current.toString();
-    return search ? `?${search}` : '';
-  };
+    const queryString = current.toString();
+    return queryString ? `?${queryString}` : '';
+  }, [searchParams]);
 
-  // 型安全な配列の作成
-  const allTags: GenreTag[] = [
+  // タグリストをメモ化
+  const allTags: GenreTag[] = useMemo(() => [
     { name: null, count: totalCount, label: 'すべて', type: 'genre' },
     ...genres.map(genre => ({
       name: genre.name,
@@ -104,9 +111,20 @@ export const GenreTagCloud: React.FC<GenreTagCloudProps> = ({
       type: 'recommendation',
       member: 'littleSister'
     }
-  ];
+  ], [genres, totalCount, recommendationCounts]);
 
   const selectedMember = searchParams?.get('recommendedBy') || null;
+
+  // タグクリック時のハンドラー
+  const handleTagClick = useCallback((tag: GenreTag) => {
+    if (onFilterChange) {
+      onFilterChange({
+        type: tag.type!,
+        value: tag.name,
+        member: tag.member
+      });
+    }
+  }, [onFilterChange]);
 
   return (
     <div className="mb-6">
@@ -118,15 +136,21 @@ export const GenreTagCloud: React.FC<GenreTagCloudProps> = ({
             (tag.type === 'recommendation' && tag.member === selectedMember);
           
           const displayText = tag.label ?? tag.name;
+          const href = `${pathname}${createQueryString({ 
+            name: tag.name, 
+            type: tag.type!, 
+            member: tag.member 
+          })}`;
           
           return (
             <Link
               key={`${tag.type}-${tag.name ?? 'all'}`}
-              href={`${pathname}${createQueryString({ 
-                name: tag.name, 
-                type: tag.type!, 
-                member: tag.member 
-              })}`}
+              href={href}
+              onClick={(e) => {
+                e.preventDefault();
+                handleTagClick(tag);
+                window.history.pushState({}, '', href);
+              }}
               className={`
                 px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap
                 transition-colors duration-200

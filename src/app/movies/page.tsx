@@ -1,14 +1,12 @@
 // src/app/movies/page.tsx
 import { getMovies } from '@/app/lib/notion';
-import { MovieGridWithFilters } from '../components/MovieGridWithFilters';
-import { Movie, MovieListItem } from '@/types/movie';
 import type { Metadata } from 'next';
-import { GenreTagCloud } from '../components/GenreTagCloud';
+import { Suspense } from 'react';
+import { MovieList } from '@/app/components/MovieList'; // パスを修正
 
 export const dynamic = 'force-static';
 export const revalidate = 86400; // 24時間
 
-// 正しい型定義
 type SearchParamsProps = {
   searchParams: Promise<{ [key: string]: string | undefined }>
 };
@@ -36,21 +34,13 @@ export default async function Page({
     const params = await searchParams;
     const movieListItems = await getMovies();
     const selectedGenre = typeof params.genre === 'string' ? params.genre : undefined;
-    const selectedMember = typeof params.recommendedBy === 'string' ? params.recommendedBy : undefined;
 
     if (!movieListItems || movieListItems.length === 0) {
-      return (
-        <div className="min-h-[50vh] flex items-center justify-center bg-gray-50">
-          <div className="text-center p-4">
-            <h2 className="text-xl font-bold mb-2">映画情報がありません</h2>
-            <p className="text-gray-600">現在表示できる映画情報はありません。</p>
-          </div>
-        </div>
-      );
+      return <EmptyState />;
     }
 
     // ジャンル集計
-    const genreCounts = movieListItems.reduce((acc, movie: MovieListItem) => {
+    const genreCounts = movieListItems.reduce((acc, movie) => {
       if (movie.genre) {
         acc[movie.genre] = (acc[movie.genre] || 0) + 1;
       }
@@ -69,17 +59,8 @@ export default async function Page({
       littleSister: movieListItems.filter(movie => movie.recommendedBy.includes('littleSister')).length,
     };
 
-    // フィルタリング
-    let filteredMovies = movieListItems;
-    if (selectedGenre) {
-      filteredMovies = filteredMovies.filter(movie => movie.genre === selectedGenre);
-    }
-    if (selectedMember) {
-      filteredMovies = filteredMovies.filter(movie => movie.recommendedBy.includes(selectedMember));
-    }
-
     // 全データを変換
-    const allMovies: Movie[] = filteredMovies.map(item => ({
+    const allMovies = movieListItems.map(item => ({
       ...item,
       reviews: {
         father: '',
@@ -87,7 +68,6 @@ export default async function Page({
         bigSister: '',
         littleSister: ''
       },
-      // オプショナルチェーンを使用
       director: item.director ?? '',
       cast: item.cast ?? [],
       screenwriter: item.screenwriter ?? '',
@@ -99,7 +79,6 @@ export default async function Page({
 
     return (
       <main className="min-h-screen bg-gray-50">
-        {/* ヒーローセクション追加 */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-12">
           <div className="container mx-auto px-4">
             <h1 className="text-3xl md:text-4xl font-bold mb-4">
@@ -110,15 +89,15 @@ export default async function Page({
             </p>
           </div>
         </div>
-        <div className="container mx-auto px-4 py-8">          
-          <GenreTagCloud 
-            genres={genres}
-            selectedGenre={selectedGenre}
-            totalCount={movieListItems.length}
-            recommendationCounts={recommendationCounts}
-          />
-          
-          <MovieGridWithFilters movies={allMovies} />
+        <div className="container mx-auto px-4 py-8">
+          <Suspense fallback={<Loading />}>
+            <MovieList
+              initialMovies={allMovies}
+              genres={genres}
+              recommendationCounts={recommendationCounts}
+              selectedGenre={selectedGenre}
+            />
+          </Suspense>
         </div>
       </main>
     );
@@ -126,6 +105,30 @@ export default async function Page({
     console.error('MoviesPage Error:', error);
     return <ErrorFallback />;
   }
+}
+
+function Loading() {
+  return (
+    <div className="animate-pulse w-full space-y-6">
+      <div className="h-12 bg-gray-200 rounded-lg mb-6" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[...Array(6)].map((_, i) => (
+          <div key={i} className="bg-white rounded-lg shadow-sm p-4 h-64" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="min-h-[50vh] flex items-center justify-center bg-gray-50">
+      <div className="text-center p-4">
+        <h2 className="text-xl font-bold mb-2">映画情報がありません</h2>
+        <p className="text-gray-600">現在表示できる映画情報はありません。</p>
+      </div>
+    </div>
+  );
 }
 
 function ErrorFallback() {

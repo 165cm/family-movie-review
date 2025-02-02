@@ -1,5 +1,4 @@
 // src/app/movies/[slug]/page.tsx
-export const dynamic = 'force-dynamic'
 import { getMovieBySlug, getMovies } from '@/app/lib/notion';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';  // Metadataのインポートを追加
@@ -18,6 +17,9 @@ import { SortOption } from '@/app/lib/filters/types';
 import StructuredData from '@/app/components/StructuredData';
 import { FamilyMember } from '@/types/family';
 import { getRandomProduct } from '@/utils/amazonProducts';
+
+export const dynamic = 'force-static';  // force-dynamicから変更
+export const revalidate = 86400; // 24時間ごとに再生成
 
 const FAMILY_COLORS = {
   father: '#4CAF50',    // ソフトグリーン
@@ -136,7 +138,7 @@ export async function generateMetadata(
 export async function generateStaticParams() {
   try {
     const movies = await getMovies();
-    return movies.map((movie: { slug: string }) => ({  // 明示的な型付け
+    return movies.map((movie: { slug: string }) => ({
       slug: movie.slug,
     }));
   } catch (error) {
@@ -406,7 +408,24 @@ export default async function Page({ params, searchParams }: PageProps) {
       </div>
     );
   } catch (error) {
-    console.error('Error loading movie:', error);
-    throw error;
+    // エラーログの詳細化
+    console.error('Error loading movie:', {
+      error,
+      params,
+      searchParams
+    });
+    
+    // カスタムエラーページへのフォールバック
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center p-8">
+          <h1 className="text-2xl font-bold mb-4">申し訳ありません</h1>
+          <p className="text-gray-600">
+            ページの読み込み中にエラーが発生しました。<br />
+            しばらく経ってから再度お試しください。
+          </p>
+        </div>
+      </div>
+    );
   }
 }

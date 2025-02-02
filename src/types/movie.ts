@@ -22,19 +22,28 @@ export interface Movie extends MovieBase {
   duration?: number; // 上映時間（分）を追加
 }
 
-export interface MovieListItem extends MovieBase {
+export interface MovieListItem {
+  id: string;
+  name: string;
+  slug: string;
+  synopsis: string;
+  totalScore: number;
+  familyScores: FamilyScores;
   watchedDate: string;
   viewingPlatform: string;
-  isBest5: boolean;
   viewingUrl: string | null;
-  genre: string;  // MovieGenre型を文字列型に変更
+  genre: string;
+  check: string;
+  isBest5: boolean;
+  recommendedBy: string[];
+  updatedAt?: string;
+  // 必要なフィールドを追加
   director?: string;
   cast?: string[];
   screenwriter?: string;
   highlights?: string[];
-  monthDb?: string;
-  check: string;  // FamilyCheck型を削除し、stringに
   status?: string;
+  monthDb?: string;
 }
 
 export interface MovieBase {

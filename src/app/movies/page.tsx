@@ -5,8 +5,8 @@ import { Movie, MovieListItem } from '@/types/movie';
 import type { Metadata } from 'next';
 import { GenreTagCloud } from '../components/GenreTagCloud';
 
-export const revalidate = 3600;
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-static';
+export const revalidate = 86400; // 24時間
 
 // 正しい型定義
 type SearchParamsProps = {
@@ -87,6 +87,7 @@ export default async function Page({
         bigSister: '',
         littleSister: ''
       },
+      // オプショナルチェーンを使用
       director: item.director ?? '',
       cast: item.cast ?? [],
       screenwriter: item.screenwriter ?? '',

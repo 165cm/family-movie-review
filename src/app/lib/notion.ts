@@ -11,7 +11,11 @@ import {
 } from '@notionhq/client/build/src/api-endpoints';
 import { cache } from 'react';
 import { Movie, MovieListItem } from '@/types/movie';
+import { unstable_cache } from 'next/cache';
 
+// キャッシュキーの定義
+const MOVIES_CACHE_KEY = 'movies-data';
+const CACHE_TAG = 'movies';
 
 // RichText型の定義
 type NotionRichText = {
@@ -230,73 +234,69 @@ export const getMovieBySlug = cache(async (slug: string): Promise<Movie | null> 
 });
 
 // デバッグ情報付きバージョン
-export const getMovies = cache(async (): Promise<MovieListItem[]> => {
-  try {
-    const apiKey = process.env.NOTION_API_KEY;
-    const databaseId = process.env.NOTION_DATABASE_ID;
+export const getMovies = unstable_cache(
+  async () => {
+    try {
+      const apiKey = process.env.NOTION_API_KEY;
+      const databaseId = process.env.NOTION_DATABASE_ID;
 
-    if (!apiKey || !databaseId) {
-      throw new Error('Missing environment variables');
-    }
-
-    const notion = new Client({
-      auth: apiKey,
-      notionVersion: '2022-06-28'
-    });
-
-    let allMovies: MovieListItem[] = [];
-    let hasMore = true;
-    let startCursor: string | undefined = undefined;
-
-    while (hasMore) {
-      const response = await notion.databases.query({
-        database_id: databaseId,
-        start_cursor: startCursor,
-        page_size: 100,
-        filter: {
-          property: 'Status',
-          status: {
-            equals: 'Published'
-          }
-        },
-        sorts: [
-          {
-            property: 'WatchedDate',
-            direction: 'descending',
-          }
-        ],
-      });
-
-      const movies = response.results
-        .filter((page): page is PageObjectResponse => 'properties' in page)
-        .map(extractMovieListItem);
-
-      allMovies = [...allMovies, ...movies];
-
-      hasMore = response.has_more;
-      startCursor = response.next_cursor ?? undefined;
-
-      // 300件を超えた場合は取得を中止（任意の上限）
-      if (allMovies.length >= 300) {
-        hasMore = false;
+      if (!apiKey || !databaseId) {
+        throw new Error('Missing environment variables');
       }
 
-      // APIレート制限を考慮して少し待機
-      await new Promise(resolve => setTimeout(resolve, 200));
+      const notion = new Client({
+        auth: apiKey,
+        notionVersion: '2022-06-28'
+      });
+
+      let allMovies: MovieListItem[] = [];
+      let hasMore = true;
+      let startCursor: string | undefined = undefined;
+
+      while (hasMore) {
+        const response = await notion.databases.query({
+          database_id: databaseId,
+          start_cursor: startCursor,
+          page_size: 100,
+          filter: {
+            property: 'Status',
+            status: {
+              equals: 'Published'
+            }
+          },
+          sorts: [
+            {
+              property: 'WatchedDate',
+              direction: 'descending',
+            }
+          ],
+        });
+
+        const movies = response.results
+          .filter((page): page is PageObjectResponse => 'properties' in page)
+          .map(extractMovieListItem);
+
+        allMovies = [...allMovies, ...movies];
+        hasMore = response.has_more;
+        startCursor = response.next_cursor ?? undefined;
+
+        if (allMovies.length >= 300) {
+          hasMore = false;
+        }
+      }
+
+      return allMovies;
+    } catch (error) {
+      console.error('Notion API Error:', error);
+      return [];
     }
-
-    console.log('Total movies fetched:', allMovies.length);
-    return allMovies;
-
-  } catch (error) {
-    console.error('Notion API Error:', {
-      name: error instanceof Error ? error.name : 'Unknown',
-      message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined
-    });
-    return [];
+  },
+  [MOVIES_CACHE_KEY],
+  {
+    tags: [CACHE_TAG],
+    revalidate: 3600 // 1時間
   }
-});
+);
 
 export const extractMovieListItem = (page: PageObjectResponse): MovieListItem => {
   const movie = extractMovieData(page);
@@ -310,9 +310,11 @@ export const extractMovieListItem = (page: PageObjectResponse): MovieListItem =>
     familyScores: movie.familyScores,
     watchedDate: movie.watchedDate,
     viewingPlatform: movie.viewingPlatform,
-    viewingUrl: movie.viewingUrl,  // viewingUrlを追加
-    genre: movie.genre,  // genreフィールドを追加
+    viewingUrl: movie.viewingUrl,
+    genre: movie.genre,
     check: movie.check,
     isBest5: movie.isBest5,
-    recommendedBy: movie.recommendedBy,  };
+    recommendedBy: movie.recommendedBy,
+    updatedAt: new Date().toISOString(), // updatedAtフィールドを追加
+  };
 };

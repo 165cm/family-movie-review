@@ -240,6 +240,11 @@ export const getMovies = unstable_cache(
       const apiKey = process.env.NOTION_API_KEY;
       const databaseId = process.env.NOTION_DATABASE_ID;
 
+      console.log('Notion API check:', {
+        hasApiKey: !!apiKey,
+        hasDatabaseId: !!databaseId
+      });
+
       if (!apiKey || !databaseId) {
         throw new Error('Missing environment variables');
       }
@@ -287,14 +292,17 @@ export const getMovies = unstable_cache(
 
       return allMovies;
     } catch (error) {
-      console.error('Notion API Error:', error);
+      console.error('Notion fetch error:', {
+        message: (error as Error).message,
+        name:  (error as Error).name
+      });
       return [];
     }
   },
   [MOVIES_CACHE_KEY],
   {
     tags: [CACHE_TAG],
-    revalidate: 3600 // 1時間
+    revalidate: 3600
   }
 );
 

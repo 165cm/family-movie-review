@@ -75,7 +75,17 @@ export async function GET(): Promise<Response> {
     });
 
   } catch (error) {
-    console.error('Sitemap generation error:', error);
+    // エラー時にもう少し詳細な情報を返す
+    console.error('Sitemap generation error:', {
+      error:  (error as Error).message,
+      type:  (error as Error).name,
+      stack:  (error as Error).stack
+    });
+
+    // エラーの種類に応じて異なる対応を取る
+    if ( (error as Error).name === 'NotionClientError') {
+      console.error('Notion API error - check credentials');
+    }
 
     // フォールバック用の最小限のサイトマップ
     const fallbackSitemap: MetadataRoute.Sitemap = [{

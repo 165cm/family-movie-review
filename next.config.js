@@ -1,8 +1,6 @@
-// next.config.ts
-import type { Configuration } from 'webpack';
-import type { NextConfig } from 'next';
-
-const nextConfig: NextConfig = {
+// next.config.js
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   images: {
     remotePatterns: [
       {
@@ -12,7 +10,7 @@ const nextConfig: NextConfig = {
       }
     ],
   },
-  webpack: (config: Configuration, { dev, isServer }) => {
+  webpack: (config, { dev, isServer }) => {
     if (dev) {
       config.cache = {
         type: 'filesystem',
@@ -23,7 +21,9 @@ const nextConfig: NextConfig = {
     }
 
     if (isServer) {
-      config.externals = [...(config.externals as unknown as string[] || []), 'canvas'];
+      // externalsの型定義を修正
+      const externals = [...(config.externals || []), 'canvas'];
+      config.externals = externals;
     }
 
     return config;
@@ -45,4 +45,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;

@@ -1,10 +1,16 @@
+# cloudbuild.yaml
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/family-movie-review', '.']
-
+    args: [
+      'build',
+      '--build-arg', 'NOTION_API_KEY=${_NOTION_API_KEY}',
+      '--build-arg', 'NOTION_DATABASE_ID=${_NOTION_DATABASE_ID}',
+      '--build-arg', 'NEXT_PUBLIC_BASE_URL=${_NEXT_PUBLIC_BASE_URL}',
+      '-t', 'gcr.io/$PROJECT_ID/family-movie-review',
+      '.'
+    ]
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/family-movie-review']
-
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
@@ -18,6 +24,7 @@ steps:
       - '--platform'
       - 'managed'
       - '--allow-unauthenticated'
-
+      - '--set-env-vars'
+      - 'NOTION_API_KEY=${_NOTION_API_KEY},NOTION_DATABASE_ID=${_NOTION_DATABASE_ID},NEXT_PUBLIC_BASE_URL=${_NEXT_PUBLIC_BASE_URL}'
 options:
   logging: CLOUD_LOGGING_ONLY

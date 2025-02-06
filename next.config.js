@@ -21,7 +21,6 @@ const nextConfig = {
     }
 
     if (isServer) {
-      // externalsの型定義を修正
       const externals = [...(config.externals || []), 'canvas'];
       config.externals = externals;
     }
@@ -42,6 +41,12 @@ const nextConfig = {
       afterFiles: [],
       fallback: [],
     };
+  },
+  // 環境変数が設定されていない場合のビルドエラーを防ぐ
+  env: {
+    NOTION_API_KEY: process.env.NOTION_API_KEY || '',
+    NOTION_DATABASE_ID: process.env.NOTION_DATABASE_ID || '',
+    NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL || 'https://movie.choc-coin.com',
   },
 };
 

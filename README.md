@@ -1,28 +1,42 @@
-# 家族で観る映画レビュー
+# 家族で観る映画レビュー ![Tier](https://img.shields.io/badge/tier-product-blue)
 
-## 概要
-家族向け映画レビューサイト
+> 「家族で観て大丈夫?」が分かる映画レビューサイト
 
-## 技術スタック
-- Next.js 14 (App Router)
-- Notion API
-- TailwindCSS
-- Vercel
+<!-- docs/screenshots/ にスクリーンショットを追加してください -->
+<!-- 例: ![スクリーンショット](docs/screenshots/top.png) -->
 
-## 開発環境のセットアップ
-1. リポジトリのクローン
-```git clone https://github.com/your-username/family-movie-review.git```
+## これは何？
 
-2. 依存関係のインストール
-```npm install```
+家族みんなで映画を選ぶとき、「子どもに見せて大丈夫かな？」「怖いシーンはある？」と迷うことはありませんか？
+このサイトは、実際に家族で観た映画を「ファミリー目線」でレビューし、年齢別の安心度・おすすめポイントをまとめた映画レビューサイトです。
+Notion で管理したレビューデータを Next.js で表示しています。
 
-3. 環境変数の設定
-.env.exampleをコピーして.env.localを作成し、必要な値を設定
+## こんな時に使えます
 
-4. 開発サーバーの起動
-```npm run dev```
+- 週末に家族で観る映画を探しているとき
+- 子どもの年齢に合った映画を確認したいとき
+- 怖いシーン・暴力表現など気になる要素を事前に知りたいとき
+- 家族全員が楽しめる作品かどうかチェックしたいとき
 
-## 環境変数
-- NOTION_API_KEY: NotionのAPI Key
-- NOTION_DATABASE_ID: レビュー情報を管理するデータベースID
-- NEXT_PUBLIC_BASE_URL: サイトのベースURL
+## 使い方
+
+- 🌐 サイト: https://165cm.github.io/portfolio/apps/family-movie-review
+- トップページで映画一覧を閲覧し、ジャンルや年齢フィルターで絞り込めます。
+- 映画カードをタップするとレビュー詳細（ファミリースコア・あらすじ・注意点）が確認できます。
+
+## 技術・開発について
+
+開発者向けの環境構築・デプロイ手順は [DEVELOPER.md](./DEVELOPER.md) を参照してください。
+
+## プライバシー
+
+個人情報の取り扱いについては [PRIVACY.md](./PRIVACY.md) を参照してください。
+
+## ライセンス
+
+MIT
+
+## 関連リンク
+
+- 🗂 ポートフォリオ: https://165cm.github.io/portfolio/apps/family-movie-review
+- 📘 開発マニュアル: https://github.com/165cm/portfolio/tree/main/docs/standards
